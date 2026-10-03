@@ -1,0 +1,228 @@
+---
+// The 305 government pages Student Atlas cites, on a radar. The sweep replays
+// the twice-daily check; now and then a page "changes" and walks through the
+// alert, review and publish steps the real monitor runs.
+import hosts from '../../data/atlas-sources.json';
+
+const unique = new Set(hosts).size;
+---
+
+<div class="radar" data-radar>
+  <div class="scope">
+    <canvas aria-hidden="true"></canvas>
+    <p class="readout"><span data-count>0</span> / {hosts.length} checked</p>
+    <p class="hover" data-hover aria-hidden="true"></p>
+  </div>
+  <div class="side">
+    <p class="kicker">Monitor log</p>
+    <ol class="log" data-log aria-live="polite">
+      <li>Waiting for the first sweep.</li>
+    </ol>
+    <p class="fine">
+      Every dot is a real page Student Atlas cites, across {unique} government sites. Hover one to see which. The sweep
+      replays the check that runs every 12 hours.
+    </p>
+  </div>
+  <script type="application/json" data-hosts set:html={JSON.stringify(hosts)} />
+</div>
+
+<style>
+  .radar { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 2rem; align-items: center; }
+  .scope { position: relative; aspect-ratio: 1; max-width: 520px; width: 100%; }
+  canvas { width: 100%; height: 100%; display: block; }
+  .readout {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin: 0;
+    font: 700 0.9rem var(--display);
+    font-variant-numeric: tabular-nums;
+  }
+  .hover { position: absolute; right: 0; bottom: 0; margin: 0; font: 600 0.85rem var(--display); }
+  .kicker { margin: 0 0 0.75rem; font: 700 1rem var(--display); }
+  .log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    min-height: 11.5rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  .log :global(li) { padding: 0.45rem 0; border-top: 1px solid var(--line); }
+  .log :global(li:first-child) { font-weight: 500; }
+  .log :global(b) { font-family: var(--display); }
+  .fine { font-size: 0.85rem; color: var(--muted); margin: 1.25rem 0 0; }
+  @media (max-width: 760px) {
+    .radar { grid-template-columns: 1fr; }
+    .scope { margin: 0 auto; }
+  }
+</style>
+
+<script>
+  type Dot = { x: number; y: number; host: string; angle: number; lit: number; changed: number };
+
+  const hash = (s: string, seed = 0) => {
+    let h = 2166136261 ^ seed;
+    for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+    return (h >>> 0) / 4294967295;
+  };
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-radar]')) {
+    const hosts: string[] = JSON.parse(root.querySelector('[data-hosts]')!.textContent!);
+    const canvas = root.querySelector('canvas')!;
+    const ctx = canvas.getContext('2d')!;
+    const count = root.querySelector<HTMLElement>('[data-count]')!;
+    const log = root.querySelector<HTMLElement>('[data-log]')!;
+    const hover = root.querySelector<HTMLElement>('[data-hover]')!;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Pages on the same site cluster together: the site picks the bearing, the page nudges it.
+    const dots: Dot[] = hosts.map((host, i) => {
+      const angle = hash(host) * Math.PI * 2 + (hash(String(i), 7) - 0.5) * 0.18;
+      const r = 0.18 + 0.78 * Math.sqrt(hash(host + i, 3));
+      return { host, angle, x: Math.cos(angle) * r, y: Math.sin(angle) * r, lit: 0, changed: 0 };
+    });
+
+    let size = 0;
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      size = canvas.clientWidth;
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    new ResizeObserver(resize).observe(canvas);
+
+    const ink = () => getComputedStyle(root).color;
+    const PERIOD = 5200;
+    let sweep = -Math.PI / 2;
+    let last = performance.now();
+    let checked = 0;
+    let lap = 0;
+    let pending: { dot: Dot; step: number } | null = null;
+    let hovered: Dot | null = null;
+
+    const say = (html: string) => {
+      const li = document.createElement('li');
+      li.innerHTML = html;
+      log.prepend(li);
+      while (log.children.length > 5) log.lastElementChild!.remove();
+    };
+
+    const advanceStory = () => {
+      lap++;
+      if (pending) {
+        pending.step++;
+        const h = pending.dot.host;
+        if (pending.step === 1) say(`Alert opened for <b>${h}</b>, linked to every passage citing it.`);
+        else if (pending.step === 2) say(`Reviewed next to the affected text. Edit drafted and type-checked.`);
+        else if (pending.step === 3) { say(`Published. Readers see it in the Activity feed.`); pending.dot.changed = 0; pending = null; }
+        return;
+      }
+      if (lap % 2 === 0) {
+        const dot = dots[Math.floor(Math.random() * dots.length)];
+        dot.changed = 1;
+        pending = { dot, step: 0 };
+        say(`Change detected on <b>${dot.host}</b>.`);
+      } else {
+        say(`Sweep complete. ${hosts.length} pages checked, no substantive changes.`);
+      }
+    };
+
+    const draw = (now: number) => {
+      const c = ink();
+      const s = size;
+      const R = s / 2 - 6;
+      ctx.clearRect(0, 0, s, s);
+      ctx.save();
+      ctx.translate(s / 2, s / 2);
+
+      ctx.strokeStyle = c;
+      ctx.globalAlpha = 0.22;
+      ctx.lineWidth = 1;
+      for (const f of [0.33, 0.66, 1]) { ctx.beginPath(); ctx.arc(0, 0, R * f, 0, Math.PI * 2); ctx.stroke(); }
+      ctx.beginPath(); ctx.moveTo(-R, 0); ctx.lineTo(R, 0); ctx.moveTo(0, -R); ctx.lineTo(0, R); ctx.stroke();
+
+      if (!reduce) {
+        // The trailing wedge behind the sweep line.
+        const trail = 0.9;
+        const grad = ctx.createConicGradient(sweep - trail, 0, 0);
+        grad.addColorStop(0, 'transparent');
+        grad.addColorStop(trail / (Math.PI * 2), c);
+        ctx.globalAlpha = 0.18;
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, R, sweep - trail, sweep); ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = 0.9;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(sweep) * R, Math.sin(sweep) * R); ctx.stroke();
+      }
+
+      ctx.fillStyle = c;
+      for (const d of dots) {
+        const glow = reduce ? 0.6 : d.lit;
+        ctx.globalAlpha = 0.4 + 0.6 * glow;
+        const r = 2.2 + 2 * glow + (d === hovered ? 2 : 0);
+        ctx.beginPath(); ctx.arc(d.x * R, d.y * R, r, 0, Math.PI * 2); ctx.fill();
+        if (d.changed) {
+          const pulse = (Math.sin(now / 180) + 1) / 2;
+          ctx.globalAlpha = 0.9;
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = c;
+          ctx.beginPath(); ctx.arc(d.x * R, d.y * R, 7 + pulse * 6, 0, Math.PI * 2); ctx.stroke();
+        }
+      }
+      ctx.restore();
+    };
+
+    let running = false;
+    let frame = 0;
+    const tick = (now: number) => {
+      const dt = Math.min(now - last, 64);
+      last = now;
+      const prev = sweep;
+      sweep += (dt / PERIOD) * Math.PI * 2;
+      const norm = (a: number) => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      for (const d of dots) {
+        const a = norm(d.angle), p = norm(prev), n = norm(sweep);
+        const passed = p <= n ? a > p && a <= n : a > p || a <= n;
+        if (passed) { d.lit = 1; checked++; }
+        else d.lit = Math.max(0, d.lit - dt / 2200);
+      }
+      if (checked >= dots.length) { checked = 0; advanceStory(); }
+      count.textContent = String(checked);
+      draw(now);
+      if (running) frame = requestAnimationFrame(tick);
+    };
+
+    const start = () => {
+      if (running || reduce) return;
+      running = true;
+      last = performance.now();
+      frame = requestAnimationFrame(tick);
+    };
+    const stop = () => { running = false; cancelAnimationFrame(frame); };
+
+    // Only animate while visible, so a closed panel costs nothing.
+    new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop())).observe(canvas);
+    draw(performance.now());
+    if (reduce) { count.textContent = String(hosts.length); }
+
+    canvas.addEventListener('pointermove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const R = rect.width / 2 - 6;
+      const px = e.clientX - rect.left - rect.width / 2;
+      const py = e.clientY - rect.top - rect.height / 2;
+      let best: Dot | null = null;
+      let bestD = 12;
+      for (const d of dots) {
+        const dist = Math.hypot(d.x * R - px, d.y * R - py);
+        if (dist < bestD) { bestD = dist; best = d; }
+      }
+      hovered = best;
+      hover.textContent = best ? best.host : '';
+      if (reduce) draw(performance.now());
+    });
+    canvas.addEventListener('pointerleave', () => { hovered = null; hover.textContent = ''; });
+  }
+</script>

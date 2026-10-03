@@ -1,0 +1,243 @@
+---
+// Type a report, watch the three layers react. Layer 1 is approximated here with
+// simple rules (the real system uses Gemini); layers 2 and 3 are ReportIQ's real
+// default gap rules and question wording, from backend/app/prompts/intake_gaps.py.
+const gaps = [
+  {
+    field: 'specific_examples_present',
+    label: 'A specific example',
+    q: "If you can, one brief example really helps, roughly when, where, and what happened.",
+  },
+  {
+    field: 'witnesses_mentioned',
+    label: 'Witnesses or records',
+    q: "Is there anyone who could corroborate what you shared, or any records that might help? Share only what you're comfortable with.",
+  },
+  {
+    field: 'prior_reporting_mentioned',
+    label: 'Raised before',
+    q: 'Have you raised this concern before (for example with a manager or HR)? A short note on when and how helps; a simple no is fine too.',
+  },
+  {
+    field: 'impact_described',
+    label: 'Impact',
+    q: "Has this affected you or others in any way you're willing to describe? A few words is fine.",
+  },
+  {
+    field: 'retaliation_mentioned',
+    label: 'Retaliation',
+    q: 'Have you noticed, or do you worry about, any negative response tied to speaking up? Share only what feels safe for you.',
+  },
+];
+
+const presets = [
+  { label: 'Vague', text: "My manager keeps doing things that aren't right and nobody seems to care." },
+  {
+    label: 'Detailed',
+    text: "Since March, my manager Daniel Reyes has approved invoices from his brother's firm at the Leeds site. I saw them in the purchasing system on 14 May and kept screenshots. My colleague Priya saw it too. I told HR in June, and since then I've been left off the overtime rota.",
+  },
+];
+---
+
+<div class="desk" data-desk>
+  <div class="input">
+    <div class="presets" role="group" aria-label="Example reports">
+      <span>Try</span>
+      {presets.map((p) => <button type="button" data-preset={p.text}>{p.label}</button>)}
+    </div>
+    <label class="visually-hidden" for="report-text">Write a report</label>
+    <textarea id="report-text" rows="7" data-text>{presets[0].text}</textarea>
+    <p class="fine">Nothing you type leaves this page.</p>
+  </div>
+
+  <div class="layers">
+    <section>
+      <h4><span>1</span> Extract</h4>
+      <dl class="fields" data-fields></dl>
+    </section>
+    <section>
+      <h4><span>2</span> Find gaps</h4>
+      <ul class="rules">
+        {gaps.map((g) => (
+          <li data-rule={g.field}><i aria-hidden="true"></i>{g.label}</li>
+        ))}
+      </ul>
+    </section>
+    <section>
+      <h4><span>3</span> Ask</h4>
+      <ol class="asks" data-asks></ol>
+    </section>
+  </div>
+  <p class="fine wide">
+    Layer 1 is approximated in your browser with simple rules; the real system reads the report with a language
+    model. Layers 2 and 3 use ReportIQ's real gap rules and question wording, lightly trimmed: at most two questions, always from the
+    approved set.
+  </p>
+  <script type="application/json" data-gaps set:html={JSON.stringify(gaps)} />
+</div>
+
+<style>
+  .desk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 1.5rem 2.5rem; }
+  .presets { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font: 600 0.85rem var(--display); }
+  .presets button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    padding: 0.25rem 0.8rem;
+    cursor: pointer;
+  }
+  .presets button:hover { background: var(--ink); color: var(--paper); }
+  textarea {
+    width: 100%;
+    resize: vertical;
+    padding: 1rem;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--paper) 70%, #fff);
+    color: var(--ink);
+    font: 1.05rem/1.55 var(--body);
+  }
+  textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--ink); }
+  .fine { font-size: 0.85rem; color: var(--muted); margin: 0.6rem 0 0; }
+  .fine.wide { grid-column: 1 / -1; max-width: 48rem; }
+
+  .layers { display: grid; gap: 1.25rem; }
+  section { border-top: 2px solid var(--ink); padding-top: 0.6rem; }
+  h4 { margin: 0 0 0.6rem; font: 700 1rem var(--display); display: flex; align-items: center; gap: 0.5rem; }
+  h4 span {
+    display: grid;
+    place-items: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.75rem;
+  }
+  .fields { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; margin: 0; font-size: 0.95rem; }
+  .fields :global(dt) { font-family: var(--display); font-size: 0.8rem; font-weight: 600; padding-top: 0.15rem; }
+  .fields :global(dd) { margin: 0; }
+  .fields :global(mark) {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0 0.3em;
+    margin-right: 0.3em;
+    border-radius: 2px;
+    font-size: 0.9em;
+  }
+  .rules { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .rules li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.7rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    font: 600 0.8rem var(--display);
+    transition: background 0.25s, color 0.25s;
+  }
+  .rules li i { width: 0.55rem; height: 0.55rem; border-radius: 50%; border: 1.5px solid currentColor; }
+  .rules li.met { background: var(--ink); color: var(--paper); }
+  .rules li.met i { background: currentColor; }
+  .asks { margin: 0; padding-left: 1.2rem; font-size: 1rem; line-height: 1.45; }
+  .asks :global(li) { margin-bottom: 0.5rem; animation: rise 0.35s ease both; }
+  .asks :global(li.none) { list-style: none; margin-left: -1.2rem; font-family: var(--display); font-weight: 600; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  @media (max-width: 860px) { .desk { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  type Gap = { field: string; label: string; q: string };
+
+  const MONTHS = 'January|February|March|April|May|June|July|August|September|October|November|December';
+  const STOP = new Set(['I', 'My', 'The', 'Since', 'He', 'She', 'They', 'We', 'It', 'HR', 'This', 'That', 'When', 'After', 'Before', 'Our', 'His', 'Her', 'A', 'An', 'On', 'In', 'At', 'And', 'But', 'Nobody', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ...MONTHS.split('|')]);
+  const has = (t: string, re: RegExp) => re.test(t);
+  const uniq = (xs: string[]) => [...new Set(xs.map((x) => x.trim()))].filter(Boolean);
+
+  // A crude stand-in for the language model: enough to show the shape of layer 1.
+  function extract(text: string) {
+    const dates = uniq(text.match(new RegExp(`\\b(?:\\d{1,2}\\s+)?(?:${MONTHS})(?:\\s+\\d{4})?\\b|\\b(?:19|20)\\d{2}\\b|\\blast (?:week|month|year)\\b|\\byesterday\\b`, 'gi')) ?? []);
+    const places = uniq([...text.matchAll(/\b(?:at|in) the ([A-Z][a-z]+(?: [A-Z][a-z]+)?) (?:site|office|branch|plant|warehouse|store)\b/g)].map((m) => m[1]));
+    const people = uniq(
+      [...text.matchAll(/\b([A-Z][a-z]+(?: [A-Z][a-z]+)?)\b/g)]
+        .map((m) => m[1])
+        .filter((n) => !n.split(' ').some((w) => STOP.has(w)) && !places.includes(n)),
+    );
+    return {
+      dates,
+      people,
+      places,
+      specific_examples_present: dates.length > 0 && has(text, /\b(saw|seen|watched|heard|on \d|approved|signed|sent|took|told me)\b/i),
+      witnesses_mentioned: has(text, /\b(saw it too|also saw|witness|colleague|coworker|others saw|screenshots?|emails?|records?|receipts?)\b/i),
+      prior_reporting_mentioned: has(text, /\b(told|reported|raised|complained|flagged|emailed)\b.{0,40}\b(HR|manager|supervisor|compliance|ethics|hotline|director)\b|\bHR\b.{0,20}\b(told|said|knows)/i),
+      impact_described: has(text, /\b(affected|stress|anxious|lost|cost|harm|unsafe|injur|money|sick|rota|hours|pay)\b/i),
+      retaliation_mentioned: has(text, /\b(since then|retaliat|punish|left off|demoted|threat|afraid|worried|scared|isolated|excluded)\b/i),
+    };
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-desk]')) {
+    const gaps: Gap[] = JSON.parse(root.querySelector('[data-gaps]')!.textContent!);
+    const input = root.querySelector<HTMLTextAreaElement>('[data-text]')!;
+    const fields = root.querySelector<HTMLElement>('[data-fields]')!;
+    const asks = root.querySelector<HTMLElement>('[data-asks]')!;
+    let lastAsk = '';
+
+    const chips = (xs: string[]) => {
+      const dd = document.createElement('dd');
+      if (!xs.length) dd.textContent = 'none found';
+      for (const x of xs) {
+        const m = document.createElement('mark');
+        m.textContent = x;
+        dd.append(m);
+      }
+      return dd;
+    };
+
+    const run = () => {
+      const r = extract(input.value) as Record<string, unknown> & { dates: string[]; people: string[]; places: string[] };
+      fields.replaceChildren();
+      for (const [label, xs] of [['Dates', r.dates], ['People', r.people], ['Places', r.places]] as const) {
+        const dt = document.createElement('dt');
+        dt.textContent = label;
+        fields.append(dt, chips(xs));
+      }
+      const dt = document.createElement('dt');
+      dt.textContent = 'Length';
+      const dd = document.createElement('dd');
+      dd.textContent = `${input.value.trim().length} characters`;
+      fields.append(dt, dd);
+
+      const missing: Gap[] = [];
+      for (const g of gaps) {
+        const met = Boolean(r[g.field]);
+        root.querySelector(`[data-rule="${g.field}"]`)!.classList.toggle('met', met);
+        if (!met) missing.push(g);
+      }
+
+      const chosen = missing.slice(0, 2);
+      const key = chosen.map((g) => g.field).join();
+      if (key === lastAsk) return;
+      lastAsk = key;
+      asks.replaceChildren();
+      if (!chosen.length) {
+        const li = document.createElement('li');
+        li.className = 'none';
+        li.textContent = 'Nothing missing. No follow-up needed.';
+        asks.append(li);
+      }
+      for (const g of chosen) {
+        const li = document.createElement('li');
+        li.textContent = g.q;
+        asks.append(li);
+      }
+    };
+
+    input.addEventListener('input', run);
+    for (const b of root.querySelectorAll<HTMLButtonElement>('[data-preset]')) {
+      b.addEventListener('click', () => { input.value = b.dataset.preset!; run(); });
+    }
+    run();
+  }
+</script>

@@ -1,15 +1,26 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import NameHero from '../components/NameHero.astro';
+import Flex from '../components/Flex.astro';
 import BacktestDemo from '../components/BacktestDemo.astro';
-import ProjectRows from '../components/ProjectRows.astro';
-import Note from '../components/Note.astro';
+import AtlasRadar from '../components/toys/AtlasRadar.astro';
+import ReportDesk from '../components/toys/ReportDesk.astro';
+import CaseDeck from '../components/toys/CaseDeck.astro';
+import ParliamentBoard from '../components/toys/ParliamentBoard.astro';
 import { getProjects } from '../lib/projects';
+import { site } from '../site';
 
 const projects = await getProjects();
-const flagship = projects.find((p) => p.data.flagship)!;
-const others = projects.filter((p) => !p.data.flagship);
+const engine = projects.find((p) => p.data.flagship)!;
+const work = projects.filter((p) => !p.data.flagship);
+
+// Each project's live demo, shown when its row opens.
+const toys: Record<string, any> = {
+  'student-atlas': AtlasRadar,
+  reportiq: ReportDesk,
+  jurislearning: CaseDeck,
+  'speak-up': ParliamentBoard,
+};
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -18,51 +29,85 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
 ---
 
 <Base>
-  <NameHero />
+  <section class="hero wrap">
+    <h1 class="statement wave"><Flex text={site.statement} /></h1>
+    <p class="intro">{site.intro}</p>
+    <ul class="swatches" aria-label="Projects">
+      {projects.map((p) => (
+        <li data-world={p.id}>
+          <a href={p.data.flagship ? '#engine' : `#${p.id}`} data-open={p.data.flagship ? undefined : p.id}>{p.data.title}</a>
+        </li>
+      ))}
+    </ul>
+  </section>
 
-  <section class="flagship" aria-labelledby="flagship-title">
+  <section id="work" class="work" aria-label="Projects">
+    {work.map((p) => {
+      const Toy = toys[p.id];
+      return (
+        <details name="work" class="world" data-world={p.id} id={p.id}>
+          <summary class="wrap row">
+            <span class="name"><Flex text={p.data.title} /></span>
+            <span class="helps">
+              {p.data.helps}
+              <span class="status">{p.data.status}</span>
+            </span>
+            <span class="plus" aria-hidden="true"></span>
+          </summary>
+          <div class="wrap panel">
+            <div class="pitch">
+              <p class="tagline">{p.data.tagline}</p>
+              <dl class="stats">
+                {p.data.stats.map((s) => (
+                  <div>
+                    <dt>{s.label}</dt>
+                    <dd>{s.value}</dd>
+                    <dd class="src">{s.source}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p class="links">
+                <a href={`/work/${p.id}`}>How it works</a>
+                {p.data.links.live && <a href={p.data.links.live}>Open the live site</a>}
+                {p.data.links.repo && <a href={p.data.links.repo}>Read the source</a>}
+              </p>
+            </div>
+            <div class="toy">{Toy && <Toy />}</div>
+          </div>
+        </details>
+      );
+    })}
+  </section>
+
+  <section id="engine" class="engine in-world" data-world={engine.id} aria-labelledby="engine-title">
     <div class="wrap">
-      <div class="flag-head">
-        <h2 id="flagship-title" style={`view-transition-name: title-${flagship.id}`}>{flagship.data.title}</h2>
-        <p class="flag-tag">{flagship.data.tagline}</p>
-      </div>
-
-      <div class="prose flag-copy">
+      <p class="lead">And the engine that will pay for it.</p>
+      <h2 id="engine-title" style={`view-transition-name: title-${engine.id}`}><Flex text={engine.data.title} /></h2>
+      <div class="engine-copy">
         <p>
-          My backtesting engine, running live on this page. A real strategy, a market generated with no edge at all, and
-          the engine's own output. Switch to the naive backtest and it looks like a winner. Add what a broker actually
-          charges and the edge disappears. Invictus is built to show you that before your money does.
+          A trading research platform I'm building for the long run. It doesn't make money yet. It's being built so that
+          when it does, the edge is real. Try it below: a real strategy, run by the real engine, on a market generated
+          with no edge at all. The naive backtest says it wins. Add what a broker charges and see what's left.
         </p>
       </div>
 
       <BacktestDemo id="home-demo" />
 
-      <dl class="proof prose">
-        <div>
-          <dt>Tests</dt>
-          <dd>4,442<Note>Counted with <code>pytest --collect-only</code>, 3 October 2026.</Note></dd>
-        </div>
-        <div>
-          <dt>Regression cases</dt>
-          <dd>380<Note>Pinned trades in <code>tests/regression/</code>. A change that moves one fails the build.</Note></dd>
-        </div>
-        <div>
-          <dt>Commits</dt>
-          <dd>641<Note>Since 13 February 2026, from <code>git rev-list</code>.</Note></dd>
-        </div>
+      <dl class="stats engine-stats">
+        {engine.data.stats.map((s) => (
+          <div>
+            <dt>{s.label}</dt>
+            <dd>{s.value}</dd>
+            <dd class="src">{s.source}</dd>
+          </div>
+        ))}
       </dl>
-
-      <p class="more"><a href={`/work/${flagship.id}`}>How Invictus works</a></p>
+      <p class="links"><a href={`/work/${engine.id}`}>How Invictus works</a></p>
     </div>
   </section>
 
-  <section class="wrap block">
-    <h2>More work</h2>
-    <ProjectRows projects={others} />
-  </section>
-
   {posts.length > 0 && (
-    <section class="wrap block">
+    <section class="wrap writing">
       <h2>Writing</h2>
       <ul class="rows">
         {posts.map((post) => (
@@ -75,60 +120,171 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
           </li>
         ))}
       </ul>
-      <p><a href="/blog">All writing</a></p>
     </section>
   )}
 </Base>
 
 <style>
-  .flagship {
-    margin-top: clamp(4rem, 12vh, 8rem);
-    padding: clamp(3rem, 8vh, 5rem) 0;
-    background: var(--paper-2);
-    border-top: 2px solid var(--ink);
-  }
-  .flag-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.5rem 2rem;
-    margin-bottom: 1.5rem;
-  }
-  .flag-head h2 {
+  /* Hero */
+  .hero { padding-top: clamp(3rem, 12vh, 9rem); padding-bottom: clamp(3rem, 10vh, 7rem); }
+  .statement {
     margin: 0;
-    font-size: clamp(3rem, 10vw, 7rem);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 0.9;
+    font-size: clamp(3.25rem, 10.5vw, 10.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    font-weight: 420;
+    max-width: 11ch;
+    transition: color 0.35s ease;
   }
-  .flag-tag { margin: 0; font-size: clamp(1.15rem, 2vw, 1.4rem); max-width: 26ch; }
-  .flag-copy { margin-bottom: 2.5rem; }
-  .flag-copy p { margin: 0; }
-  .flagship { --demo-bg: var(--paper-2); }
-
-  .proof {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 13rem));
-    gap: 1.5rem;
-    margin: 2.5rem 0 0;
-  }
-  .proof > div { max-width: none; }
-  .proof dt { font-size: 0.85rem; color: var(--muted); }
-  .proof dd { margin: 0; font: 800 clamp(2rem, 5vw, 3rem) / 1 var(--display); letter-spacing: -0.02em; }
-  .proof :global(.note) {
-    float: none;
+  .intro { max-width: 36rem; margin: 2.5rem 0 0; font-size: clamp(1.2rem, 1.8vw, 1.45rem); line-height: 1.45; }
+  .swatches { list-style: none; margin: 2.5rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .swatches a {
     display: block;
-    width: auto;
-    margin: 0.5rem 0 0;
-    font: 400 0.8rem/1.4 var(--body);
-    letter-spacing: 0;
-    padding: 0;
-    border: 0;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    background: var(--world);
+    color: var(--on);
+    font: 600 0.9rem var(--display);
+    text-decoration: none;
+    transition: transform 0.2s cubic-bezier(0.3, 0.7, 0.2, 1);
   }
-  .more { margin: 2.5rem 0 0; font-family: var(--display); font-weight: 600; font-size: 1.1rem; }
-  .block { margin-top: clamp(4rem, 10vh, 7rem); }
+  .swatches a:hover { transform: translateY(-3px) rotate(-2deg); }
 
-  @media (max-width: 640px) {
-    .proof { grid-template-columns: 1fr; }
+  /* Project rows: closed they're giant names; open they become their colour. */
+  .work { border-top: 1px solid var(--line); }
+  .world { border-bottom: 1px solid var(--line); transition: background-color 0.45s ease; }
+  .world[open] {
+    --paper: var(--world);
+    --paper-2: color-mix(in srgb, var(--world) 88%, var(--on));
+    --ink: var(--on);
+    --muted: color-mix(in srgb, var(--on) 68%, var(--world));
+    --line: color-mix(in srgb, var(--on) 28%, var(--world));
+    --accent: var(--on);
+    --ghost: color-mix(in srgb, var(--on) 42%, var(--world));
+    background: var(--world);
+    color: var(--on);
+    border-bottom-color: transparent;
+  }
+  .world::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 0.6s cubic-bezier(0.3, 0.7, 0.2, 1), content-visibility 0.6s allow-discrete;
+  }
+  .world[open]::details-content { block-size: auto; }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 17rem) auto;
+    align-items: center;
+    gap: 1rem 2rem;
+    padding-top: clamp(0.9rem, 2vw, 1.5rem);
+    padding-bottom: clamp(0.9rem, 2vw, 1.5rem);
+    cursor: pointer;
+    list-style: none;
+  }
+  .row::-webkit-details-marker { display: none; }
+  .name {
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 7.4vw, 7.25rem);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    transition: color 0.3s ease, opacity 0.3s ease;
+  }
+  .world:not([open]) .row:hover .name, .world:not([open]) .row:focus-visible .name { color: var(--world); }
+  .work:has(.row:hover) .world:not(:has(.row:hover)):not([open]) .name { opacity: 0.3; }
+  .helps { font-size: 1rem; line-height: 1.35; }
+  .status { display: block; margin-top: 0.3rem; font: 600 0.8rem var(--display); opacity: 0.6; }
+  .plus { position: relative; width: 1.75rem; height: 1.75rem; }
+  .plus::before, .plus::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background: currentColor;
+    transition: transform 0.4s cubic-bezier(0.3, 0.7, 0.2, 1);
+  }
+  .plus::after { transform: rotate(90deg); }
+  .world[open] .plus::after { transform: rotate(0deg); }
+  .world[open] .plus::before { transform: rotate(180deg); }
+
+  .panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    gap: 2.5rem 4rem;
+    padding-top: 1rem;
+    padding-bottom: clamp(3rem, 7vw, 5rem);
+  }
+  .tagline { margin: 0; font-size: clamp(1.3rem, 2.2vw, 1.75rem); line-height: 1.3; }
+  .stats { margin: 2rem 0 0; display: grid; gap: 1.25rem; }
+  .stats div { display: grid; grid-template-columns: auto 1fr; align-items: baseline; column-gap: 1rem; }
+  .stats dt { grid-column: 2; grid-row: 1; font-size: 1rem; line-height: 1.3; }
+  .stats dd { margin: 0; grid-column: 1; grid-row: 1 / span 2; font: 800 clamp(2.4rem, 4.5vw, 3.6rem) / 1 var(--display); letter-spacing: -0.03em; min-width: 2.2ch; }
+  .stats dd.src { grid-column: 2; grid-row: 2; font: 400 0.8rem / 1.3 var(--code); letter-spacing: 0; opacity: 0.65; min-width: 0; }
+  .links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 2rem 0 0; font: 700 1rem var(--display); }
+
+  /* The engine */
+  .engine { padding: clamp(4rem, 12vh, 8rem) 0; margin-top: clamp(4rem, 10vh, 7rem); }
+  .lead { margin: 0; font-size: clamp(1.3rem, 2.4vw, 1.9rem); font-style: italic; }
+  .engine h2 {
+    margin: 0.25rem 0 0;
+    font-size: clamp(4rem, 17vw, 16rem);
+    line-height: 0.85;
+    letter-spacing: -0.045em;
+    font-weight: 420;
+  }
+  .engine-copy { max-width: 40rem; margin: 2rem 0 3rem; font-size: 1.15rem; }
+  .engine-copy p { margin: 0; }
+  .engine-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 3rem; }
+  .engine .links { margin-top: 2.5rem; }
+
+  .writing { margin-top: clamp(4rem, 10vh, 7rem); }
+
+  @media (max-width: 900px) {
+    .panel { grid-template-columns: 1fr; }
+    .engine-stats { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .row { grid-template-columns: minmax(0, 1fr) auto; }
+    .name { grid-column: 1; }
+    .plus { grid-column: 2; grid-row: 1; }
+    .helps { grid-column: 1 / -1; grid-row: 2; }
   }
 </style>
+
+<script>
+  const rows = [...document.querySelectorAll<HTMLDetailsElement>('details.world')];
+
+  // Hovering a project's swatch tints the statement in that project's colour.
+  const statement = document.querySelector<HTMLElement>('.statement')!;
+  for (const li of document.querySelectorAll<HTMLElement>('.swatches li')) {
+    li.addEventListener('pointerenter', () => { statement.style.color = getComputedStyle(li).getPropertyValue('--world'); });
+    li.addEventListener('pointerleave', () => { statement.style.color = ''; });
+  }
+
+  // Opening a row brings it to the top of the screen, once the previous one has closed.
+  for (const d of rows) {
+    d.addEventListener('toggle', () => {
+      if (!d.open) return;
+      history.replaceState(null, '', `#${d.id}`);
+      setTimeout(() => d.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    });
+  }
+
+  const openFromHash = () => {
+    const d = rows.find((r) => `#${r.id}` === location.hash);
+    if (d) d.open = true;
+  };
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-open]')) {
+    a.addEventListener('click', (e) => {
+      const d = rows.find((r) => r.id === a.dataset.open);
+      if (!d) return;
+      e.preventDefault();
+      d.open = true;
+    });
+  }
+</script>

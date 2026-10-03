@@ -1,13 +1,18 @@
 ---
 title: Student Atlas
 tagline: Visa guidance for international students that keeps itself up to date.
-order: 2
+helps: Helps international students find their visa route
+order: 1
 year: '2026'
 status: Live
 stack: [React 19, TypeScript, Vite, Tailwind, GitHub Actions, MCP]
 links:
   live: https://thestudentatlas.vercel.app
 proof: Checks 305 government sources every 12 hours. Half its commits are made by its own monitor.
+stats:
+  - { value: '305', label: 'government sources watched', source: 'unique URLs in citations.ts' }
+  - { value: '12h', label: 'between checks', source: 'student-atlas-monitor.yml' }
+  - { value: '87', label: 'commits made by its own monitor', source: 'git log, 3 Oct 2026' }
 ---
 
 import Note from '../../components/Note.astro';

@@ -41,6 +41,20 @@
 3. Write the case study: the problem, how it works, the engineering, the proof.
 4. Diagrams: import `Flow` and pass the steps. Screenshots: put the PNG in `src/assets/work/` and use `<Image>` with `class="shot"`.
 
+## Give it a colour and a demo
+
+1. Add a colour world to `src/styles/global.css`: `[data-world='my-project'] { --world: #hex; --on: #000 or #fff; }`. Check the text colour against it for contrast.
+2. Add `helps:` (who it's for) and three `stats:` to the front matter, each with a `source`.
+3. Build a demo in `src/components/toys/` and add it to the `toys` map in `src/pages/index.astro`. Use the colour tokens (`--ink`, `--paper`, `--muted`, `--line`) so it repaints in the project's world.
+
+## Refresh the demo data
+
+From this repo's root:
+
+```bash
+python3 scripts/refresh-demo-data.py
+```
+
 ## Back every number
 
 Any number that a reader might doubt gets a note saying where it came from:

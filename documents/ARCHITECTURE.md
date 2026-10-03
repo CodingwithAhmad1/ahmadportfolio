@@ -2,7 +2,7 @@
 
 ## Stack
 
-- **Astro 5**, static output, with MDX for case studies. No client framework. JavaScript runs only for the hero letters, the backtest demo and the theme toggle, and every page reads fine without it.
+- **Astro 5**, static output, with MDX for case studies. No client framework. JavaScript runs the letter effect and the five demos. Everything reads fine without it, and the accordion still opens.
 - **Plain CSS** with custom properties. Global styles in `src/styles/global.css`, everything else scoped in components.
 - **Google Fonts**: Syne (display) and Newsreader (body).
 - **Node 20+**. Upgrading to Astro 7 needs Node 22.12+.
@@ -16,6 +16,9 @@ src/
   content/blog/             Posts, one Markdown file each
   content/projects/         Case studies, one MDX file each (order, status, proof line in front matter)
   data/invictus-demo.json   Real Invictus output behind the demo (generated, don't edit by hand)
+  data/atlas-sources.json   Host of every source Student Atlas cites (from its citations.ts)
+  data/juris-cases.json     JurisLearning's landmark cases, shortened (from its case_seeds.py)
+  scripts/flex.ts           Pointer-weight effect for every .flex element
   assets/work/              Screenshots, optimised at build time
   lib/
     projects.ts             getProjects(): the collection, sorted by `order`
@@ -26,15 +29,17 @@ src/
     Header.astro            Name mark, nav, theme toggle
     Footer.astro            Socials and copyright
     Socials.astro           Social link list
-    NameHero.astro          Home page hero and the pointer-weight script
+    Flex.astro              Text whose letters respond to the pointer
     BacktestDemo.astro      The playable backtest: controls, chart, KPIs
-    ProjectRows.astro       Project list used on home and /work
+    toys/AtlasRadar.astro   Student Atlas: radar of the 305 real sources
+    toys/ReportDesk.astro   ReportIQ: type a report, watch the three layers
+    toys/CaseDeck.astro     JurisLearning: deck of its 42 landmark cases
+    toys/ParliamentBoard.astro  Speak Up: vote, reorder, prefect view, drafted replies
     Note.astro              Evidence note: numbered marker plus margin note
     Flow.astro              Pipeline diagram used in case studies
     Knowability.astro       The two-bar diagram on the Invictus page
   pages/
-    index.astro             Home
-    work/index.astro        All projects
+    index.astro             Home: hero, project accordion, Invictus engine section
     work/[slug].astro       Case study template
     blog/index.astro        All posts
     blog/[...slug].astro    Single post
@@ -47,7 +52,8 @@ documents/                  These notes
 
 ## How pages get data
 
-- **Projects** come from `getProjects()`. The one with `flagship: true` gets the band on the home page; the rest are rows.
+- **Projects** come from `getProjects()`. The one with `flagship: true` (Invictus) gets the engine section; the rest are rows in the accordion. Each row is a native `<details>` element, so it opens without JavaScript, and only one opens at a time. Its demo comes from the `toys` map in `src/pages/index.astro`.
+- `/work` redirects to `/#work`. Case study pages stay at `/work/[slug]` for anyone who wants depth.
 - **Posts** come from `getCollection('blog')`. Posts with `draft: true` are filtered out everywhere.
 - A URL is the filename: `invictus.mdx` becomes `/work/invictus`, `hello-world.md` becomes `/blog/hello-world`.
 

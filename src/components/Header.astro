@@ -1,30 +1,27 @@
 ---
 import { site } from '../site';
 
+const onHome = Astro.url.pathname === '/';
 const links = [
-  { href: '/work', label: 'Work' },
+  { href: '/#work', label: 'Work' },
+  { href: '/#engine', label: 'Engine' },
   { href: '/blog', label: 'Writing' },
 ];
-const path = Astro.url.pathname;
 ---
 
 <header class="wrap">
-  <a class="mark" href="/">{site.fullName}</a>
+  <a class="mark" href="/">{site.fullName}{site.age && <span class="age">, {site.age}</span>}</a>
   <nav aria-label="Main">
     {links.map(({ href, label }) => (
-      <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>{label}</a>
+      <a href={onHome && href.startsWith('/#') ? href.slice(1) : href}>{label}</a>
     ))}
-    <button type="button" class="theme" data-theme-toggle aria-label="Switch colour theme">
-      <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-        <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.5" />
-        <path d="M10 2a8 8 0 0 1 0 16Z" fill="currentColor" />
-      </svg>
-    </button>
   </nav>
 </header>
 
 <style>
   header {
+    position: relative;
+    z-index: 5;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -34,33 +31,24 @@ const path = Astro.url.pathname;
   }
   a { text-decoration: none; font-family: var(--display); }
   .mark { font-weight: 700; white-space: nowrap; }
-  nav { display: flex; align-items: center; gap: clamp(0.9rem, 3vw, 1.5rem); }
-  nav a { font-weight: 500; }
-  nav a[aria-current='page'] { text-decoration: underline; text-decoration-thickness: 2px; }
-  .theme {
-    display: grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--ink);
-    cursor: pointer;
-    transition: transform 0.3s ease;
+  .age { font-weight: 400; }
+  nav { display: flex; align-items: center; gap: clamp(0.9rem, 3vw, 1.75rem); }
+  nav a { font-weight: 500; position: relative; }
+  nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.2rem;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
   }
-  .theme:hover { color: var(--accent); transform: rotate(180deg); }
+  nav a:hover::after { transform: scaleX(1); }
+  @media (max-width: 480px) {
+    header { font-size: 0.9rem; }
+    nav { gap: 0.8rem; }
+  }
 </style>
-
-<script>
-  const btn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
-  btn?.addEventListener('click', () => {
-    const root = document.documentElement;
-    const dark = root.dataset.theme
-      ? root.dataset.theme === 'dark'
-      : window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const next = dark ? 'light' : 'dark';
-    root.dataset.theme = next;
-    try { localStorage.setItem('theme', next); } catch {}
-  });
-</script>

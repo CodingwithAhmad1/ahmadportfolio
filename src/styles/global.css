@@ -1,47 +1,46 @@
+/*
+ * One black stage, five colour worlds. Each project owns a colour; when it opens,
+ * its panel redefines the tokens below, so every component inside repaints itself.
+ */
 :root {
-  --paper: #e6eae4;
-  --paper-2: #dde2da;
-  --ink: #17241e;
-  --muted: #56645b;
-  --line: #c3cbc2;
-  --accent: #2b44d6;
-  --ghost: #9aa59c;
-  --gain: #2f7a4f;
-  --loss: #b4442f;
+  --paper: #000;
+  --paper-2: #101010;
+  --ink: #f3f1ec;
+  --muted: rgba(243, 241, 236, 0.55);
+  --line: rgba(243, 241, 236, 0.16);
+  --accent: #6f86ff;
+  --ghost: rgba(243, 241, 236, 0.35);
+  --gain: #59e39b;
+  --loss: #ff7a5c;
   --display: 'Syne', system-ui, sans-serif;
   --body: 'Newsreader', Georgia, serif;
   --code: ui-monospace, 'SF Mono', Menlo, monospace;
   --measure: 40rem;
   --gutter: clamp(1rem, 4vw, 3rem);
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --paper: #121a16;
-    --paper-2: #18221d;
-    --ink: #e2e8e0;
-    --muted: #93a097;
-    --line: #2c3832;
-    --accent: #9aa8ff;
-    --ghost: #56635a;
-    --gain: #6fcf97;
-    --loss: #f08a73;
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme='dark'] {
-  --paper: #121a16;
-  --paper-2: #18221d;
-  --ink: #e2e8e0;
-  --muted: #93a097;
-  --line: #2c3832;
-  --accent: #9aa8ff;
-  --ghost: #56635a;
-  --gain: #6fcf97;
-  --loss: #f08a73;
   color-scheme: dark;
+  interpolate-size: allow-keywords;
+}
+
+/* The worlds. `--world` is the panel colour, `--on` the text colour on it. */
+[data-world='invictus'] { --world: #3b5bff; --on: #fff; }
+[data-world='student-atlas'] { --world: #ff5b2e; --on: #0a0a0a; }
+[data-world='reportiq'] { --world: #f2df3a; --on: #0a0a0a; }
+[data-world='jurislearning'] { --world: #a0183a; --on: #fff; }
+[data-world='speak-up'] { --world: #2bd982; --on: #0a0a0a; }
+
+/* Inside an open world, every token follows its colours. */
+.in-world {
+  --paper: var(--world);
+  --paper-2: color-mix(in srgb, var(--world) 88%, var(--on));
+  --ink: var(--on);
+  --muted: color-mix(in srgb, var(--on) 68%, var(--world));
+  --line: color-mix(in srgb, var(--on) 28%, var(--world));
+  --accent: var(--on);
+  --ghost: color-mix(in srgb, var(--on) 42%, var(--world));
+  --gain: var(--on);
+  --loss: var(--on);
+  background: var(--paper);
+  color: var(--ink);
 }
 
 /* Cross-page morphs in browsers that support them; a normal page load everywhere else. */
@@ -62,6 +61,17 @@ body {
   overflow-x: hidden;
 }
 
+/* Film grain over everything, so flat colour has some tooth. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 h1, h2, h3 {
   font-family: var(--display);
   font-weight: 700;
@@ -71,16 +81,18 @@ h1, h2, h3 {
 
 h2 { font-size: 1.5rem; margin: 0 0 1.25rem; }
 
-a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: 0.2em; }
-a:hover { color: var(--accent); }
+a { color: inherit; text-decoration-color: currentColor; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
 
 code, pre { font-family: var(--code); }
 
 img { max-width: 100%; height: auto; }
 
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+::selection { background: var(--ink); color: var(--paper); }
 
-.wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--gutter); }
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 2px; }
+
+.wrap { max-width: 84rem; margin: 0 auto; padding: 0 var(--gutter); }
 
 .muted { color: var(--muted); }
 
@@ -89,7 +101,7 @@ img { max-width: 100%; height: auto; }
   clip: rect(0 0 0 0); white-space: nowrap;
 }
 
-/* Lists of projects and posts share one row style. */
+/* Lists of posts. */
 .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
 .rows li { border-bottom: 1px solid var(--line); }
 .rows a {
@@ -102,7 +114,6 @@ img { max-width: 100%; height: auto; }
 .rows .title { font-family: var(--display); font-weight: 600; font-size: 1.25rem; }
 .rows .meta { color: var(--muted); font-size: 0.95rem; text-align: right; font-variant-numeric: tabular-nums; }
 .rows .summary { grid-column: 1 / -1; color: var(--muted); }
-.rows a:hover .title { color: var(--accent); }
 
 @media (max-width: 560px) {
   .rows a { grid-template-columns: 1fr; }
@@ -125,7 +136,6 @@ img { max-width: 100%; height: auto; }
   vertical-align: super;
   line-height: 0;
   margin-left: 0.1em;
-  color: var(--accent);
 }
 .note {
   float: right;
@@ -140,7 +150,7 @@ img { max-width: 100%; height: auto; }
   content: counter(note) ' ';
   font-family: var(--display);
   font-weight: 700;
-  color: var(--accent);
+  color: var(--ink);
 }
 .note code { font-size: 0.85em; overflow-wrap: anywhere; }
 
@@ -155,20 +165,25 @@ img { max-width: 100%; height: auto; }
   }
 }
 
+/* Code blocks: dark theme on the black stage. */
+.astro-code, .astro-code span { color: var(--shiki-dark); background-color: var(--paper-2); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
   @view-transition { navigation: none; }
 }
 
-/* Code blocks follow the page theme. */
-.astro-code, .astro-code span { color: var(--shiki-light); background-color: var(--paper-2); }
-:root[data-theme='dark'] .astro-code, :root[data-theme='dark'] .astro-code span {
-  color: var(--shiki-dark);
-  background-color: var(--paper-2);
+/* Letters that respond to the pointer (see src/scripts/flex.ts). */
+.flex .word { display: inline-block; white-space: nowrap; }
+.flex .ch {
+  display: inline-block;
+  font-variation-settings: 'wght' var(--w, 420);
+  transition: font-variation-settings 0.35s ease-out;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .astro-code, :root:not([data-theme='light']) .astro-code span {
-    color: var(--shiki-dark);
-    background-color: var(--paper-2);
-  }
+/* One orchestrated moment: a wave of weight rolls through the hero on load. */
+.wave .ch { animation: wave 1.3s cubic-bezier(0.3, 0.7, 0.2, 1) backwards; animation-delay: calc(var(--i) * 26ms + 200ms); }
+@keyframes wave {
+  0% { font-variation-settings: 'wght' 420; }
+  35% { font-variation-settings: 'wght' 800; }
+  100% { font-variation-settings: 'wght' 420; }
 }

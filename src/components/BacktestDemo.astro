@@ -108,8 +108,8 @@ const payload = JSON.stringify({ variants, range });
 
   <figcaption id={`${id}-desc`}>
     Strategy <code>{meta.strategy}</code> on a seeded synthetic market ({meta.market.profile}, seed {meta.market.seed}),
-    {meta.market.bars.toLocaleString('en-GB')} four-hour bars, 2019 to 2024. The grey line is the naive backtest: fills at the
-    signal bar's close, no costs. The blue line is the same strategy under the assumptions you choose. Every number
+    {meta.market.bars.toLocaleString('en-GB')} four-hour bars, 2019 to 2024. The dashed line is the naive backtest: fills at the
+    signal bar's close, no costs. The solid line is the same strategy under the assumptions you choose. Every number
     was produced by Invictus and exported unchanged.
   </figcaption>
 

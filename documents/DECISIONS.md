@@ -51,8 +51,7 @@ Format: date, decision, why, and what would make you revisit it.
 
 ### 2026-10-03: Manual theme toggle
 
-**Why:** Lets a visitor override their system setting. The saved choice is applied by a tiny inline script before first paint, so there's no flash.
-**Revisit if:** Never likely.
+**Superseded** by the black stage below.
 
 ### 2026-10-03: Name and age only
 
@@ -63,3 +62,23 @@ Format: date, decision, why, and what would make you revisit it.
 
 **Why:** Invictus, JurisLearning and Speak Up repos are private, so their pages describe and show the work and cite file paths in notes instead of linking code. ReportIQ is public and links to GitHub. Speak Up names Dubai College, with permission, and uses no school logo. ReportIQ's test policy is described as "modelled on a large manufacturer's" and 3M is never named.
 **Revisit if:** A repo goes public, or a project gets a live URL.
+
+### 2026-10-03: Everything on the home page, every project playable (v3)
+
+**Why:** Ahmad's feedback on v2: nobody will click into a project and read it. Visitors click and expect to see something. Each project now opens in place, in its own colour, as a working demo. Case studies remain for depth.
+**Revisit if:** A project can't be shown as a demo. Then use a short video loop rather than text.
+
+### 2026-10-03: People first, Invictus as the engine
+
+**Why:** Ahmad's premise is social impact. The four impact projects lead and each says who it helps. Invictus is framed honestly as the engine that should fund the work long term. It doesn't make money today.
+**Revisit if:** Invictus starts earning, or the mission changes.
+
+### 2026-10-03: A black stage with colour worlds, no theme toggle
+
+**Why:** One strong look beats two average ones. Five saturated worlds read best against black. The token system lets each panel repaint every component inside it with no extra code.
+**Revisit if:** Readability complaints on long case study pages; then consider a light reading mode for those pages only.
+
+### 2026-10-03: Demos use real data where it exists
+
+**Why:** The radar draws Student Atlas's real 305 sources. The deck uses JurisLearning's real case summaries. ReportIQ uses its real gap rules and question wording, with layer 1 approximated by simple rules in the browser and labelled as such. Speak Up's ideas are samples and say so. Nothing pretends to be live when it isn't.
+**Revisit if:** A project gets a public API worth calling live.

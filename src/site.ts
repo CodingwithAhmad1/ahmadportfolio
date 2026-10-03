@@ -5,9 +5,10 @@ export const site = {
   // TODO: set your age (a number). It shows next to your name when set.
   age: null as number | null,
   description:
-    'Ahmad Azim builds software that has to be right: a backtesting engine, a self-updating visa guide, AI whistleblowing intake.',
+    'Ahmad Azim builds software for people: visa guidance for students, safe whistleblowing, law learning, a student parliament. And a trading engine to fund it.',
+  statement: 'I build software for people.',
   intro:
-    'I build software that has to be right. A backtesting engine that refuses to flatter a strategy. A visa guide that checks 305 government sources twice a day. An intake assistant that is not allowed to misquote.',
+    "For students crossing borders, people brave enough to report wrongdoing, future lawyers, and pupils who want to be heard. And one engine, still being built, to pay for all of it in the long run.",
 };
 
 // Links with an empty href are hidden. TODO: fill in LinkedIn, X and a public email.

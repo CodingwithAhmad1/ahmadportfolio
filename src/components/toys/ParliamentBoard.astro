@@ -1,0 +1,166 @@
+---
+// A working miniature of Speak Up: vote, watch the board reorder, then switch to
+// the prefect's view to see counts and draft a reply. Sample ideas, not real posts.
+const ideas = [
+  { id: 'a', text: 'Open the library at lunch on Fridays', by: 'Named', votes: 41, draft: 'Thanks for raising this. We spoke to the librarian, who can open on Fridays at lunch from next half term if prefects help supervise. We are asking for volunteers now.' },
+  { id: 'b', text: 'Water refill stations on every floor', by: 'Anonymous', votes: 58, draft: 'This was the most supported idea this month. We have taken it to the bursar, who is pricing two extra stations for the upper floors. We will share the answer at the next session.' },
+  { id: 'c', text: 'A quiet room for revision during study leave', by: 'Anonymous', votes: 23, draft: 'Good idea. Room 14 is free during study leave, and we have asked for it to be kept silent. We will confirm the timetable before exams start.' },
+  { id: 'd', text: 'Recycling bins in every classroom', by: 'Named', votes: 35, draft: 'The eco committee already has bins on order. We will check they reach every classroom and report back.' },
+];
+---
+
+<div class="board" data-board>
+  <div class="bar">
+    <div class="role" role="group" aria-label="View as">
+      <button type="button" data-role="student" aria-pressed="true">Student</button>
+      <button type="button" data-role="prefect" aria-pressed="false">Prefect</button>
+    </div>
+    <p class="hint" data-hint>Vote for the ideas you want. The board reorders as you do.</p>
+  </div>
+
+  <ul class="ideas" data-list>
+    {ideas.map((idea) => (
+      <li data-id={idea.id} data-votes={idea.votes}>
+        <button type="button" class="vote" data-vote aria-pressed="false" aria-label={`Vote for: ${idea.text}`}>
+          <svg viewBox="0 0 12 10" width="12" height="10" aria-hidden="true"><path d="M6 0 12 10H0Z" fill="currentColor" /></svg>
+        </button>
+        <div class="body">
+          <p class="text">{idea.text}</p>
+          <p class="by">{idea.by}</p>
+          <p class="reply" data-reply hidden></p>
+        </div>
+        <span class="count" data-count>{idea.votes}</span>
+        <button type="button" class="draft" data-draft={idea.draft}>Draft reply</button>
+      </li>
+    ))}
+  </ul>
+  <p class="fine">Sample ideas, not real posts. In the real app students never see vote counts; prefects and class reps do.</p>
+</div>
+
+<style>
+  .board { max-width: 46rem; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin-bottom: 1rem; }
+  .role { display: inline-flex; border: 2px solid var(--ink); border-radius: 999px; padding: 2px; }
+  .role button {
+    font: 700 0.85rem var(--display);
+    color: inherit;
+    background: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+  }
+  .role button[aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+  .hint { margin: 0; font-size: 0.95rem; }
+
+  .ideas { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+  .ideas li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: 0.25rem 1rem;
+    padding: 0.85rem 1rem;
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--paper) 80%, #fff);
+  }
+  .ideas li:first-child { background: var(--ink); color: var(--paper); }
+  .vote {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .vote:active { transform: scale(0.9); }
+  .vote[aria-pressed='true'] { background: currentColor; }
+  .vote[aria-pressed='true'] svg { color: var(--paper); }
+  .ideas li:first-child .vote[aria-pressed='true'] svg { color: var(--ink); }
+  .body p { margin: 0; }
+  .text { font: 600 1.05rem / 1.3 var(--display); }
+  .by { font-size: 0.85rem; opacity: 0.7; }
+  .reply { margin-top: 0.5rem !important; font-size: 0.95rem; line-height: 1.45; }
+  .reply::before { content: 'Reply, drafted by Claude. '; font: 700 0.8rem var(--display); }
+  .count, .draft { display: none; }
+  .count { font: 800 1.4rem var(--display); font-variant-numeric: tabular-nums; }
+  .draft {
+    grid-column: 2 / -1;
+    justify-self: start;
+    font: 700 0.8rem var(--display);
+    color: inherit;
+    background: none;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    padding: 0.2rem 0.75rem;
+    cursor: pointer;
+  }
+  .board.prefect .count, .board.prefect .draft { display: block; }
+  .fine { font-size: 0.85rem; color: var(--muted); margin: 0.9rem 0 0; }
+</style>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-board]')) {
+    const list = root.querySelector<HTMLElement>('[data-list]')!;
+    const hint = root.querySelector<HTMLElement>('[data-hint]')!;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Reorder by votes, animating each row from where it was (FLIP).
+    const sort = () => {
+      const items = [...list.children] as HTMLElement[];
+      const before = new Map(items.map((el) => [el, el.getBoundingClientRect().top]));
+      items.sort((a, b) => Number(b.dataset.votes) - Number(a.dataset.votes)).forEach((el) => list.append(el));
+      if (reduce) return;
+      for (const el of items) {
+        const dy = before.get(el)! - el.getBoundingClientRect().top;
+        if (!dy) continue;
+        el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.3,.7,.2,1)' });
+      }
+    };
+
+    for (const li of list.querySelectorAll<HTMLElement>('li')) {
+      const btn = li.querySelector<HTMLButtonElement>('[data-vote]')!;
+      const count = li.querySelector<HTMLElement>('[data-count]')!;
+      btn.addEventListener('click', () => {
+        const on = btn.getAttribute('aria-pressed') !== 'true';
+        btn.setAttribute('aria-pressed', String(on));
+        const v = Number(li.dataset.votes) + (on ? 25 : -25);
+        li.dataset.votes = String(v);
+        count.textContent = String(v);
+        sort();
+      });
+
+      const draft = li.querySelector<HTMLButtonElement>('[data-draft]')!;
+      const reply = li.querySelector<HTMLElement>('[data-reply]')!;
+      draft.addEventListener('click', () => {
+        const text = draft.dataset.draft!;
+        reply.hidden = false;
+        draft.hidden = true;
+        if (reduce) { reply.textContent = text; return; }
+        let n = 0;
+        const type = () => {
+          n += 3;
+          reply.textContent = text.slice(0, n);
+          if (n < text.length) setTimeout(type, 16);
+        };
+        type();
+      });
+    }
+
+    for (const b of root.querySelectorAll<HTMLButtonElement>('[data-role]')) {
+      b.addEventListener('click', () => {
+        const prefect = b.dataset.role === 'prefect';
+        root.classList.toggle('prefect', prefect);
+        for (const o of root.querySelectorAll<HTMLButtonElement>('[data-role]')) o.setAttribute('aria-pressed', String(o === b));
+        hint.textContent = prefect
+          ? 'Prefects see the counts, and can draft a reply to any idea with Claude.'
+          : 'Vote for the ideas you want. The board reorders as you do.';
+      });
+    }
+    sort();
+  }
+</script>

@@ -73,6 +73,12 @@ The single backlog of things to come back to. Tick them off here.
 - [ ] **Student Atlas**: the Activity feed, which shows the monitor at work, is a better shot than the home page
 - [ ] A terminal capture of the Invictus test run, for the proof section
 
+### Demos
+
+- [ ] When JurisLearning launches, add its live link and switch its status to `Live`
+- [ ] Re-export `src/data/juris-cases.json` and `atlas-sources.json` when those projects add content (see CONTENT.md)
+- [ ] Consider a short screen recording per project as an alternative view on phones
+
 ### Keep the numbers true
 
 Every number on the site has a note saying where it came from. When a number changes, update the number and its note together.

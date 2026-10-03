@@ -2,24 +2,23 @@
 
 ## Idea
 
-**Show your working.** Other portfolios make claims; this one shows proof. Every number carries a note saying where it came from, and the best project can be used right on the page.
+**People first, proof always, nothing to read unless you want to.**
 
-Quiet and confident, with one bold moment per page: the giant name on the home page, the playable backtest in the Invictus band, the oversized title on each case study. Everything else stays calm so those stand out.
+The home page is the whole portfolio. A statement, then four giant project names. Open one and it floods with its own colour and turns into a working demo of the project. Below them, Invictus, framed as the engine that will fund the rest in the long run, with its playable backtest. Every stat carries its source underneath. Case study pages exist for anyone who wants the depth, but nobody has to visit them.
 
 ## Colour
 
-| Token | Light | Dark | Use |
-| --- | --- | --- | --- |
-| `--paper` | `#e6eae4` | `#121a16` | Page background (cool lichen grey) |
-| `--ink` | `#17241e` | `#e2e8e0` | Main text (deep pine) |
-| `--muted` | `#5e6b63` | `#93a097` | Secondary text, dates, meta |
-| `--line` | `#c3cbc2` | `#2c3832` | Dividers |
-| `--accent` | `#2b44d6` | `#9aa8ff` | Links, hover, focus, the live line in the demo (cobalt ink) |
-| `--paper-2` | `#dde2da` | `#18221d` | The flagship band, code blocks, diagram fills |
-| `--ghost` | `#9aa59c` | `#56635a` | The naive backtest line, the price strip |
-| `--gain` / `--loss` | `#2f7a4f` / `#b4442f` | `#6fcf97` / `#f08a73` | Positive and negative returns only |
+A black stage (`#000`) with off-white type (`#f3f1ec`) and film grain. Each project owns a colour world. When a project opens, its panel redefines every colour token, so all the components inside repaint in its colours.
 
-Use the accent sparingly: links, hover states, focus rings. Never as a large fill.
+| Project | Colour | Text on it |
+| --- | --- | --- |
+| Student Atlas | `#ff5b2e` ember | black |
+| ReportIQ | `#f2df3a` highlighter | black |
+| JurisLearning | `#a0183a` oxblood | white |
+| Speak Up | `#2bd982` ballot green | black |
+| Invictus | `#3b5bff` cobalt | white |
+
+Worlds are set in `src/styles/global.css` under `[data-world='…']`. A new project needs one line there.
 
 ## Type
 
@@ -39,7 +38,10 @@ A small cobalt number after a claim, and the source in the right margin, like a 
 
 ## Motion
 
-- The hero letters thicken as the pointer approaches.
+- On load, a wave of weight rolls through the statement once.
+- Every big letter on the page (statement, project names, Invictus) thickens as the pointer approaches.
+- A project opens with its colour flooding in and its panel sliding open.
+- Hovering a project's colour swatch tints the statement.
 - The demo curve glides to its new shape when a control changes, so you see what the change did.
 - Project titles morph between the list and the case study (CSS view transitions; browsers without support just load the page).
 - Nothing moves on its own.

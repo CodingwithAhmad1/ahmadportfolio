@@ -1,13 +1,18 @@
 ---
 title: ReportIQ
 tagline: AI whistleblowing intake that is not allowed to misquote, and finds where policy falls short.
-order: 3
+helps: Helps employees report wrongdoing safely
+order: 2
 year: '2026'
 status: Open source
 stack: [FastAPI, Gemini, ChromaDB, BM25, React, TypeScript, MCP]
 links:
   repo: https://github.com/CodingwithAhmad1/Whistleblowing
 proof: Every quote is checked word for word against the source. The AI picks questions but never writes them.
+stats:
+  - { value: '3', label: 'layers, only one of them AI', source: 'backend/app/question_processors/' }
+  - { value: '2', label: 'legal and policy corpora checked at once', source: 'backend/app/rag/' }
+  - { value: '0', label: 'questions the model writes itself', source: 'backend/app/prompts/intake_gaps.py' }
 ---
 
 import Note from '../../components/Note.astro';

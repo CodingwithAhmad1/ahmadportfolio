@@ -18,8 +18,9 @@ const d = project.data;
 
 <Base title={d.title} description={d.tagline}>
   <article>
-    <header class="wrap head">
-      <a class="back" href="/work">All work</a>
+    <header class="head in-world" data-world={project.id}>
+      <div class="wrap">
+      <a class="back" href={project.data.flagship ? '/#engine' : `/#${project.id}`}>Back to the demo</a>
       <h1 style={`view-transition-name: title-${project.id}`}>{d.title}</h1>
       <p class="tagline">{d.tagline}</p>
       <dl class="facts">
@@ -29,13 +30,14 @@ const d = project.data;
         {d.links.live && <div><dt>Live</dt><dd><a href={d.links.live}>{new URL(d.links.live).host}</a></dd></div>}
         {d.links.repo && <div><dt>Source</dt><dd><a href={d.links.repo}>GitHub</a></dd></div>}
       </dl>
+      </div>
     </header>
 
     <div class="wrap prose case">
       <Content />
     </div>
 
-    <nav class="wrap next" aria-label="Next project">
+    <nav class="wrap next" aria-label="Next project" data-world={next.id}>
       <a href={`/work/${next.id}`}>
         <span class="muted">Next project</span>
         <span class="next-title">{next.data.title}</span>
@@ -45,7 +47,7 @@ const d = project.data;
 </Base>
 
 <style>
-  .head { padding-top: 3rem; }
+  .head { padding: 3rem 0 3.5rem; }
   .back { font-family: var(--display); font-size: 0.95rem; }
   h1 {
     font-size: clamp(3.5rem, 13vw, 10rem);
@@ -62,7 +64,6 @@ const d = project.data;
     margin: 2.5rem 0 0;
     padding: 1.25rem 0;
     border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
     font-size: 0.95rem;
   }
   .facts dt { font-family: var(--display); font-size: 0.8rem; color: var(--muted); }
@@ -105,5 +106,6 @@ const d = project.data;
     border-top: 2px solid var(--ink);
     text-decoration: none;
   }
-  .next-title { font: 800 clamp(2.5rem, 8vw, 5rem) / 1 var(--display); letter-spacing: -0.03em; }
+  .next a:hover .next-title { color: var(--world); }
+  .next-title { transition: color 0.3s; font: 800 clamp(2.5rem, 8vw, 5rem) / 1 var(--display); letter-spacing: -0.03em; }
 </style>

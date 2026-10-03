@@ -16,6 +16,8 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     tagline: z.string(),
+    // Who the project is for, shown on its row on the home page.
+    helps: z.string(),
     order: z.number(),
     year: z.string(),
     status: z.enum(['Live', 'Open source', 'Private', 'Launching soon', 'In use']),
@@ -25,6 +27,8 @@ const projects = defineCollection({
       .default({}),
     // The single strongest fact, shown in project lists.
     proof: z.string(),
+    // Three headline numbers for the home page panel, each with where it came from.
+    stats: z.array(z.object({ value: z.string(), label: z.string(), source: z.string() })).length(3),
     flagship: z.boolean().default(false),
   }),
 });

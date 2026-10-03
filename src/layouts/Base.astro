@@ -30,13 +30,6 @@ const pageTitle = title ? `${title} | ${site.fullName}` : site.fullName;
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Syne:wght@400..800&display=swap"
     />
-    <script is:inline>
-      // Apply a saved theme before first paint so the page never flashes.
-      try {
-        const t = localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
-      } catch {}
-    </script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -47,6 +40,11 @@ const pageTitle = title ? `${title} | ${site.fullName}` : site.fullName;
     <Footer />
   </body>
 </html>
+
+<script>
+  import { initFlex } from '../scripts/flex';
+  initFlex();
+</script>
 
 <style>
   .skip { position: absolute; left: -999px; top: 0.5rem; }
