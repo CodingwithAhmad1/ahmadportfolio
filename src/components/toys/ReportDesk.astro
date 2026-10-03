@@ -1,7 +1,10 @@
 ---
-// Type a report, watch the three layers react. Layer 1 is approximated here with
-// simple rules (the real system uses Gemini); layers 2 and 3 are ReportIQ's real
-// default gap rules and question wording, from backend/app/prompts/intake_gaps.py.
+// A report types itself onto the page. As it does, the facts in it light up, a
+// meter fills for each detail an investigator needs, and ReportIQ's next question
+// rewrites itself until nothing is missing. Then it's yours to type over.
+// The fact-spotting is a crude in-browser stand-in (the real system uses a language
+// model); the gap rules and question wording are ReportIQ's real defaults, from
+// backend/app/prompts/intake_gaps.py, lightly trimmed.
 const gaps = [
   {
     field: 'specific_examples_present',
@@ -30,122 +33,118 @@ const gaps = [
   },
 ];
 
-const presets = [
-  { label: 'Vague', text: "My manager keeps doing things that aren't right and nobody seems to care." },
-  {
-    label: 'Detailed',
-    text: "Since March, my manager Daniel Reyes has approved invoices from his brother's firm at the Leeds site. I saw them in the purchasing system on 14 May and kept screenshots. My colleague Priya saw it too. I told HR in June, and since then I've been left off the overtime rota.",
-  },
+const script = [
+  'My manager is doing something wrong and nobody cares.',
+  "On 14 May I saw my manager Daniel Reyes approve his brother's invoices. Priya saw it too. I told HR, and since then I've been left off the rota.",
 ];
 ---
 
 <div class="desk" data-desk>
-  <div class="input">
-    <div class="presets" role="group" aria-label="Example reports">
-      <span>Try</span>
-      {presets.map((p) => <button type="button" data-preset={p.text}>{p.label}</button>)}
-    </div>
+  <div class="paper">
+    <div class="mirror" aria-hidden="true" data-mirror></div>
     <label class="visually-hidden" for="report-text">Write a report</label>
-    <textarea id="report-text" rows="7" data-text>{presets[0].text}</textarea>
-    <p class="fine">Nothing you type leaves this page.</p>
+    <textarea id="report-text" rows="3" spellcheck="false" placeholder="Describe what happened. Nothing you type leaves this page." data-text>{script[0]}</textarea>
   </div>
 
-  <div class="layers">
-    <section>
-      <h4><span>1</span> Extract</h4>
-      <dl class="fields" data-fields></dl>
-    </section>
-    <section>
-      <h4><span>2</span> Find gaps</h4>
-      <ul class="rules">
-        {gaps.map((g) => (
-          <li data-rule={g.field}><i aria-hidden="true"></i>{g.label}</li>
-        ))}
-      </ul>
-    </section>
-    <section>
-      <h4><span>3</span> Ask</h4>
-      <ol class="asks" data-asks></ol>
-    </section>
+  <ol class="meter" aria-label="Details an investigator needs">
+    {gaps.map((g) => (
+      <li data-rule={g.field}><span class="bar" aria-hidden="true"></span>{g.label}</li>
+    ))}
+  </ol>
+
+  <div class="ask" aria-live="polite">
+    <p class="ask-label">ReportIQ asks</p>
+    <p class="ask-q" data-ask></p>
   </div>
-  <p class="fine wide">
-    Layer 1 is approximated in your browser with simple rules; the real system reads the report with a language
-    model. Layers 2 and 3 use ReportIQ's real gap rules and question wording, lightly trimmed: at most two questions, always from the
-    approved set.
-  </p>
+
   <script type="application/json" data-gaps set:html={JSON.stringify(gaps)} />
+  <script type="application/json" data-script set:html={JSON.stringify(script)} />
 </div>
 
 <style>
-  .desk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 1.5rem 2.5rem; }
-  .presets { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font: 600 0.85rem var(--display); }
-  .presets button {
-    font: inherit;
-    color: inherit;
-    background: none;
-    border: 1.5px solid currentColor;
-    border-radius: 999px;
-    padding: 0.25rem 0.8rem;
-    cursor: pointer;
-  }
-  .presets button:hover { background: var(--ink); color: var(--paper); }
-  textarea {
-    width: 100%;
-    resize: vertical;
-    padding: 1rem;
-    border: 2px solid var(--ink);
-    border-radius: 4px;
-    background: color-mix(in srgb, var(--paper) 70%, #fff);
-    color: var(--ink);
-    font: 1.05rem/1.55 var(--body);
-  }
-  textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--ink); }
-  .fine { font-size: 0.85rem; color: var(--muted); margin: 0.6rem 0 0; }
-  .fine.wide { grid-column: 1 / -1; max-width: 48rem; }
+  .desk { display: grid; gap: clamp(1.5rem, 3vw, 2.25rem); }
 
-  .layers { display: grid; gap: 1.25rem; }
-  section { border-top: 2px solid var(--ink); padding-top: 0.6rem; }
-  h4 { margin: 0 0 0.6rem; font: 700 1rem var(--display); display: flex; align-items: center; gap: 0.5rem; }
-  h4 span {
+  /* The report: a sheet of paper. A mirror behind the textarea carries the highlights,
+     so the text stays editable and the sheet grows with it. */
+  .paper {
     display: grid;
-    place-items: center;
-    width: 1.4rem;
-    height: 1.4rem;
-    border-radius: 50%;
+    border: 2px solid var(--ink);
+    background: color-mix(in srgb, var(--paper) 45%, #fff);
+    box-shadow: 10px 10px 0 var(--ink);
+  }
+  .mirror, textarea {
+    grid-area: 1 / 1;
+    margin: 0;
+    padding: clamp(0.9rem, 2vw, 1.25rem);
+    border: 0;
+    font: clamp(1rem, 1.35vw, 1.1rem) / 1.55 var(--body);
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+  .mirror { color: transparent; pointer-events: none; }
+  textarea {
+    resize: none;
+    overflow: hidden;
+    background: transparent;
+    color: var(--ink);
+    caret-color: var(--ink);
+  }
+  textarea:focus { outline: none; }
+  textarea::placeholder { color: var(--muted); }
+  .paper:focus-within { box-shadow: 14px 14px 0 var(--ink); }
+  .paper { transition: box-shadow 0.25s ease; }
+
+  /* A highlighter stroke that draws across each fact as it's found. */
+  .mirror :global(mark) {
+    color: transparent;
+    border-radius: 3px;
+    background: linear-gradient(var(--world), var(--world)) no-repeat 0 0 / 100% 100%;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .mirror :global(mark.new) { animation: swipe 0.45s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+  @keyframes swipe { from { background-size: 0% 100%; } }
+
+  /* Five details an investigator needs. Each bar fills when the report covers it. */
+  .meter { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem; }
+  .meter li { display: grid; gap: 0.45rem; font: 600 0.78rem / 1.2 var(--display); opacity: 0.55; transition: opacity 0.3s ease; }
+  .bar { height: 6px; background: color-mix(in srgb, var(--ink) 18%, transparent); position: relative; overflow: hidden; }
+  .bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
     background: var(--ink);
-    color: var(--paper);
-    font-size: 0.75rem;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.3, 0.7, 0.2, 1);
   }
-  .fields { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; margin: 0; font-size: 0.95rem; }
-  .fields :global(dt) { font-family: var(--display); font-size: 0.8rem; font-weight: 600; padding-top: 0.15rem; }
-  .fields :global(dd) { margin: 0; }
-  .fields :global(mark) {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 0 0.3em;
-    margin-right: 0.3em;
-    border-radius: 2px;
-    font-size: 0.9em;
+  .meter li.met { opacity: 1; }
+  .meter li.met .bar::after { transform: scaleX(1); }
+
+  .ask { min-height: 7.5em; }
+  .ask-label { margin: 0 0 0.4rem; font: 500 0.75rem var(--code); letter-spacing: 0.08em; text-transform: uppercase; }
+  .ask-q {
+    margin: 0;
+    max-width: 30ch;
+    font: 600 clamp(1.4rem, 2.6vw, 2.1rem) / 1.15 var(--display);
+    letter-spacing: -0.02em;
   }
-  .rules { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .rules li {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.25rem 0.7rem;
-    border: 1.5px solid var(--ink);
-    border-radius: 999px;
-    font: 600 0.8rem var(--display);
-    transition: background 0.25s, color 0.25s;
+  .ask-q::after {
+    content: '';
+    display: inline-block;
+    width: 0.08em;
+    height: 0.9em;
+    margin-left: 0.08em;
+    vertical-align: -0.1em;
+    background: currentColor;
+    animation: blink 1s steps(1) infinite;
   }
-  .rules li i { width: 0.55rem; height: 0.55rem; border-radius: 50%; border: 1.5px solid currentColor; }
-  .rules li.met { background: var(--ink); color: var(--paper); }
-  .rules li.met i { background: currentColor; }
-  .asks { margin: 0; padding-left: 1.2rem; font-size: 1rem; line-height: 1.45; }
-  .asks :global(li) { margin-bottom: 0.5rem; animation: rise 0.35s ease both; }
-  .asks :global(li.none) { list-style: none; margin-left: -1.2rem; font-family: var(--display); font-weight: 600; }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
-  @media (max-width: 860px) { .desk { grid-template-columns: 1fr; } }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  @media (max-width: 560px) {
+    .meter { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; }
+    .meter li { font-size: 0.62rem; }
+  }
 </style>
 
 <script>
@@ -179,65 +178,99 @@ const presets = [
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-desk]')) {
     const gaps: Gap[] = JSON.parse(root.querySelector('[data-gaps]')!.textContent!);
+    const script: string[] = JSON.parse(root.querySelector('[data-script]')!.textContent!);
     const input = root.querySelector<HTMLTextAreaElement>('[data-text]')!;
-    const fields = root.querySelector<HTMLElement>('[data-fields]')!;
-    const asks = root.querySelector<HTMLElement>('[data-asks]')!;
+    const mirror = root.querySelector<HTMLElement>('[data-mirror]')!;
+    const ask = root.querySelector<HTMLElement>('[data-ask]')!;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let seen = new Set<string>();
     let lastAsk = '';
+    let typing = 0;
 
-    const chips = (xs: string[]) => {
-      const dd = document.createElement('dd');
-      if (!xs.length) dd.textContent = 'none found';
-      for (const x of xs) {
-        const m = document.createElement('mark');
-        m.textContent = x;
-        dd.append(m);
+    // Redraw the text behind the textarea with every found fact wrapped in a mark.
+    const highlight = (text: string, facts: string[]) => {
+      const spans: [number, number][] = [];
+      for (const f of facts) {
+        for (let i = text.indexOf(f); i !== -1; i = text.indexOf(f, i + f.length)) spans.push([i, i + f.length]);
       }
-      return dd;
+      spans.sort((a, b) => a[0] - b[0]);
+      const next = new Set<string>();
+      const out: Node[] = [];
+      let at = 0;
+      for (const [a, b] of spans) {
+        if (a < at) continue;
+        out.push(document.createTextNode(text.slice(at, a)));
+        const m = document.createElement('mark');
+        m.textContent = text.slice(a, b);
+        const key = `${a}:${m.textContent}`;
+        if (!seen.has(key) && !reduce) m.className = 'new';
+        next.add(key);
+        out.push(m);
+        at = b;
+      }
+      // A trailing space keeps the mirror as tall as the textarea after a final newline.
+      out.push(document.createTextNode(text.slice(at) + ' '));
+      mirror.replaceChildren(...out);
+      seen = next;
+    };
+
+    // The question types itself out whenever it changes.
+    const say = (text: string) => {
+      clearInterval(typing);
+      if (reduce) { ask.textContent = text; return; }
+      let i = 0;
+      ask.textContent = '';
+      typing = window.setInterval(() => {
+        ask.textContent = text.slice(0, ++i);
+        if (i >= text.length) clearInterval(typing);
+      }, 16);
     };
 
     const run = () => {
       const r = extract(input.value) as Record<string, unknown> & { dates: string[]; people: string[]; places: string[] };
-      fields.replaceChildren();
-      for (const [label, xs] of [['Dates', r.dates], ['People', r.people], ['Places', r.places]] as const) {
-        const dt = document.createElement('dt');
-        dt.textContent = label;
-        fields.append(dt, chips(xs));
-      }
-      const dt = document.createElement('dt');
-      dt.textContent = 'Length';
-      const dd = document.createElement('dd');
-      dd.textContent = `${input.value.trim().length} characters`;
-      fields.append(dt, dd);
-
-      const missing: Gap[] = [];
-      for (const g of gaps) {
+      highlight(input.value, [...r.dates, ...r.people, ...r.places]);
+      const missing = gaps.filter((g) => {
         const met = Boolean(r[g.field]);
         root.querySelector(`[data-rule="${g.field}"]`)!.classList.toggle('met', met);
-        if (!met) missing.push(g);
-      }
-
-      const chosen = missing.slice(0, 2);
-      const key = chosen.map((g) => g.field).join();
+        return !met;
+      });
+      const key = input.value.trim() ? missing[0]?.field ?? 'done' : 'empty';
       if (key === lastAsk) return;
       lastAsk = key;
-      asks.replaceChildren();
-      if (!chosen.length) {
-        const li = document.createElement('li');
-        li.className = 'none';
-        li.textContent = 'Nothing missing. No follow-up needed.';
-        asks.append(li);
-      }
-      for (const g of chosen) {
-        const li = document.createElement('li');
-        li.textContent = g.q;
-        asks.append(li);
-      }
+      if (key === 'empty') say('What happened?');
+      else if (key === 'done') say('Nothing missing. Ready for an investigator.');
+      else say(missing[0].q);
     };
 
+    // The opening act: the vague report, the question it earns, then the detailed one
+    // typed over it. Stops for good the moment the visitor touches the text.
+    let playing = false;
+    let stopped = false;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const type = async (text: string, speed: number) => {
+      for (let i = 1; i <= text.length && !stopped; i++) {
+        input.value = text.slice(0, i);
+        run();
+        await wait(speed);
+      }
+    };
+    const play = async () => {
+      if (playing || stopped || reduce) return;
+      playing = true;
+      input.value = '';
+      run();
+      await wait(400);
+      await type(script[0], 22);
+      await wait(2600);
+      for (let n = input.value.length; n >= 0 && !stopped; n -= 4) { input.value = input.value.slice(0, n); run(); await wait(10); }
+      await type(script[1], 16);
+      playing = false;
+    };
+    const stop = () => { stopped = true; };
+    input.addEventListener('pointerdown', stop);
+    input.addEventListener('keydown', stop);
     input.addEventListener('input', run);
-    for (const b of root.querySelectorAll<HTMLButtonElement>('[data-preset]')) {
-      b.addEventListener('click', () => { input.value = b.dataset.preset!; run(); });
-    }
+    new IntersectionObserver(([e]) => { if (e.isIntersecting) play(); }, { threshold: 0.5 }).observe(root);
     run();
   }
 </script>

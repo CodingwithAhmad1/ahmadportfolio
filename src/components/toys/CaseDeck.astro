@@ -1,6 +1,7 @@
 ---
 // A deck of the landmark cases JurisLearning explains, taken from its seed data.
-// Click (or press Enter on) the card and it flips over to the next case.
+// Click (or press Enter on) the card: it's tossed off to the side, the next case
+// rises in underneath, and the year rolls from one ruling to the next.
 import cases from '../../data/juris-cases.json';
 
 const first = cases[0];
@@ -8,14 +9,11 @@ const first = cases[0];
 
 <div class="deck" data-deck>
   <div class="stack">
-    <span class="ghost g2" aria-hidden="true"></span>
-    <span class="ghost g1" aria-hidden="true"></span>
     <article class="card" data-card aria-live="polite" role="button" tabindex="0" aria-label="Show the next case">
       <p class="year" data-f="year">{first.year}</p>
       <h4 data-f="title">{first.title}</h4>
       <p class="court" data-f="court">{first.court}</p>
-      <p class="facts" data-f="facts">{first.facts}</p>
-      <p class="why"><b>Why it matters.</b> <span data-f="why">{first.why}</span></p>
+      <p class="why" data-f="why">{first.why}</p>
     </article>
   </div>
   <p class="pos"><span data-pos>1</span> of {cases.length}</p>
@@ -24,37 +22,32 @@ const first = cases[0];
 
 <style>
   .deck { max-width: 44rem; }
-  .stack { position: relative; padding: 0 0 1.25rem 1.25rem; perspective: 1400px; }
-  .ghost, .card { border-radius: 10px; }
-  .ghost { position: absolute; inset: 0 1.25rem 1.25rem 0; background: var(--ink); }
-  .g1 { transform: translate(0.6rem, 0.6rem); opacity: 0.35; }
-  .g2 { transform: translate(1.2rem, 1.2rem); opacity: 0.18; }
+  .stack { position: relative; }
   .card {
     position: relative;
+    border-radius: 10px;
     background: #f6f1e7;
     color: #1a1012;
-    padding: clamp(1.25rem, 3vw, 2rem);
-    min-height: 22rem;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+    padding: clamp(1.1rem, 2.4vw, 1.6rem);
+    /* Tall enough for the longest case, so the card never jumps; about the height of the pitch beside it. */
+    min-height: 19.5rem;
+    box-shadow: 0 28px 50px -28px rgba(0, 0, 0, 0.55);
     cursor: pointer;
-    transform-origin: center;
-    transition: transform 0.25s cubic-bezier(0.3, 0.7, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.3, 0.7, 0.2, 1), box-shadow 0.3s ease;
   }
-  .card:hover { transform: translateY(-3px) rotateY(-4deg); }
+  .card:hover { transform: translateY(-4px) rotate(-0.6deg); box-shadow: 0 36px 60px -28px rgba(0, 0, 0, 0.6); }
   .card:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
-  /* The flip: the card turns edge-on, the next case is swapped in, and it turns back. */
-  .card.flip-out { transform: rotateY(90deg); transition: transform 0.22s cubic-bezier(0.55, 0, 1, 0.45); }
-  .card.flip-in { transform: rotateY(-90deg); transition: none; }
-  .year { margin: 0; font: 800 clamp(3rem, 7vw, 4.5rem) / 1 var(--display); letter-spacing: -0.03em; color: #c22a4f; }
-  h4 { margin: 0.5rem 0 0.15rem; font: 700 1.35rem / 1.2 var(--display); }
-  .court { margin: 0 0 1rem; font-size: 0.9rem; opacity: 0.7; }
-  .facts, .why { margin: 0 0 0.75rem; font-size: 1rem; line-height: 1.55; }
-  .why b { font-family: var(--display); font-size: 0.9rem; }
-  .pos { margin: 0.5rem 0 0; font: 700 0.95rem var(--display); color: var(--ink); font-variant-numeric: tabular-nums; }
+  /* The copy of the old card that gets tossed away. */
+  .toss { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .year { margin: 0; font: 800 clamp(2.4rem, 5vw, 3.2rem) / 1 var(--display); letter-spacing: -0.03em; color: #c22a4f; }
+  h4 { margin: 0.45rem 0 0.1rem; font: 700 1.15rem / 1.2 var(--display); }
+  .court { margin: 0 0 0.8rem; font-size: 0.85rem; opacity: 0.7; }
+  .why { margin: 0; font-size: 0.95rem; line-height: 1.5; }
+  .pos { margin: 0.9rem 0 0; font: 700 0.95rem var(--display); color: var(--ink); font-variant-numeric: tabular-nums; }
 </style>
 
 <script>
-  type Case = { title: string; year: number; court: string; facts: string; why: string };
+  type Case = { title: string; year: number; court: string; why: string };
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-deck]')) {
     const cases: Case[] = JSON.parse(root.querySelector('[data-cases]')!.textContent!);
@@ -70,22 +63,56 @@ const first = cases[0];
       pos.textContent = String(i + 1);
     };
 
-    let busy = false;
+    // The year counts from the old ruling to the new one.
+    const year = card.querySelector<HTMLElement>('.year')!;
+    let rolling = 0;
+    const roll = (from: number, to: number) => {
+      const t0 = performance.now();
+      const id = ++rolling;
+      const step = (now: number) => {
+        if (id !== rolling) return; // a newer click took over
+        const p = Math.min(1, (now - t0) / 650);
+        const e = 1 - Math.pow(1 - p, 3);
+        year.textContent = String(Math.round(from + (to - from) * e));
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    let dir = 1;
     const next = () => {
-      if (busy) return;
       i = (i + 1) % cases.length;
       if (reduce) { fill(cases[i]); return; }
-      busy = true;
-      card.classList.add('flip-out');
-      setTimeout(() => {
-        fill(cases[i]);
-        card.classList.remove('flip-out');
-        card.classList.add('flip-in');
-        void card.offsetWidth;
-        card.classList.remove('flip-in');
-        card.style.transition = 'transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1)';
-        setTimeout(() => { card.style.transition = ''; busy = false; }, 340);
-      }, 220);
+      const before = Number(year.textContent) || cases[i].year;
+
+      // Toss a copy of the current card off to the side, alternating left and right.
+      const toss = card.cloneNode(true) as HTMLElement;
+      toss.removeAttribute('data-card');
+      toss.removeAttribute('tabindex');
+      toss.removeAttribute('role');
+      toss.setAttribute('aria-hidden', 'true');
+      toss.classList.add('toss');
+      card.after(toss);
+      dir = -dir;
+      toss.animate(
+        [
+          { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+          { transform: `translate(${dir * 75}%, -6%) rotate(${dir * 14}deg)`, opacity: 0 },
+        ],
+        { duration: 520, easing: 'cubic-bezier(0.5, 0, 0.75, 0.4)' },
+      ).finished.then(() => toss.remove());
+
+      // The next case rises in from underneath.
+      fill(cases[i]);
+      year.textContent = String(before);
+      card.animate(
+        [
+          { transform: 'translateY(18px) scale(0.94)', opacity: 0.4 },
+          { transform: 'translateY(0) scale(1)', opacity: 1 },
+        ],
+        { duration: 560, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+      );
+      roll(before, cases[i].year);
     };
 
     card.addEventListener('click', next);

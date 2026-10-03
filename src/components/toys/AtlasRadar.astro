@@ -15,7 +15,8 @@ import hosts from '../../data/atlas-sources.json';
 
 <style>
   .radar { display: grid; place-items: center; }
-  .scope { position: relative; aspect-ratio: 1; width: 100%; max-width: min(720px, 80vh); }
+  /* Sized to stand about as tall as the pitch beside it. */
+  .scope { position: relative; aspect-ratio: 1; width: 100%; max-width: 23rem; }
   canvas { width: 100%; height: 100%; display: block; }
   .readout {
     position: absolute;
@@ -73,6 +74,7 @@ import hosts from '../../data/atlas-sources.json';
     const draw = () => {
       const c = ink();
       const s = size;
+      if (s < 20) return; // still closed, nothing to draw yet
       const R = s / 2 - 6;
       ctx.clearRect(0, 0, s, s);
       ctx.save();
