@@ -1,0 +1,127 @@
+---
+// Light / dark switch. A thin pill like the link chips, with a knob that slides
+// across and turns from a moon into a sun. The new theme spreads out from the
+// knob as a circle where view transitions exist, and fades everywhere else.
+// The first visit follows the system; a click is remembered from then on.
+---
+
+<button type="button" class="theme" data-theme-toggle aria-label="Switch to light mode" title="Switch to light mode">
+  <span class="knob" aria-hidden="true">
+    <svg viewBox="0 0 24 24">
+      <mask id="theme-bite">
+        <rect width="24" height="24" fill="#fff" />
+        <circle class="bite" cx="18" cy="6" r="7" fill="#000" />
+      </mask>
+      <circle class="core" cx="12" cy="12" r="9" fill="currentColor" mask="url(#theme-bite)" />
+      <g class="rays" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 1.5v2.5M12 20v2.5M1.5 12h2.5M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" />
+      </g>
+    </svg>
+  </span>
+</button>
+
+<style>
+  .theme {
+    --travel: 1.5rem;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 3.5rem;
+    height: 2rem;
+    padding: 0 0.2rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .theme:hover { transform: translateY(-1px); }
+  .theme:active { transform: scale(0.96); }
+
+  .knob {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    transition: transform 0.55s cubic-bezier(0.5, 1.6, 0.4, 1);
+  }
+  svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* Dark: a crescent on the left. */
+  .core, .bite, .rays { transform-box: view-box; transform-origin: 12px 12px; }
+  .core { transition: transform 0.55s cubic-bezier(0.5, 1.6, 0.4, 1); }
+  .bite { transition: transform 0.55s cubic-bezier(0.3, 0.7, 0.2, 1); }
+  .rays { opacity: 0; transform: scale(0.4) rotate(-90deg); transition: opacity 0.3s ease, transform 0.55s cubic-bezier(0.3, 0.7, 0.2, 1); }
+
+  /* Light: the knob slides right, the bite slips away and the rays spin out. */
+  :global([data-theme='light']) .knob { transform: translateX(var(--travel)) rotate(180deg); }
+  :global([data-theme='light']) .core { transform: scale(0.5); }
+  :global([data-theme='light']) .bite { transform: translate(10px, -10px); }
+  :global([data-theme='light']) .rays { opacity: 1; transform: scale(1) rotate(0deg); }
+
+  @media (max-width: 480px) {
+    .theme { --travel: 1.2rem; width: 3rem; height: 1.75rem; }
+    .knob { width: 1.3rem; height: 1.3rem; }
+  }
+</style>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const html = document.documentElement;
+  const system = window.matchMedia('(prefers-color-scheme: light)');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const label = () => {
+    if (!button) return;
+    const next = html.dataset.theme === 'light' ? 'dark' : 'light';
+    button.setAttribute('aria-label', `Switch to ${next} mode`);
+    button.title = `Switch to ${next} mode`;
+  };
+
+  const apply = (theme: 'light' | 'dark') => {
+    html.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f3efe6' : '#0b0b0c');
+    label();
+    document.dispatchEvent(new CustomEvent('themechange', { detail: theme }));
+  };
+
+  // Spread the new theme out from (x, y): a growing circle where view transitions
+  // exist, a short colour fade where they don't, an instant swap with reduced motion.
+  const switchTo = (theme: 'light' | 'dark', x: number, y: number) => {
+    if (reduce.matches) return apply(theme);
+    if (!document.startViewTransition) {
+      html.classList.add('theme-shift');
+      apply(theme);
+      setTimeout(() => html.classList.remove('theme-shift'), 450);
+      return;
+    }
+    html.classList.add('theme-reveal');
+    const t = document.startViewTransition(() => apply(theme));
+    t.ready.then(() => {
+      // Percentages, not pixels, so the circle lands right however the snapshot is scaled.
+      // A radius of 150% always reaches the far corner.
+      const at = `at ${((x / innerWidth) * 100).toFixed(2)}% ${((y / innerHeight) * 100).toFixed(2)}%`;
+      html.animate(
+        { clipPath: [`circle(0% ${at})`, `circle(150% ${at})`] },
+        { duration: 650, easing: 'cubic-bezier(0.3, 0.7, 0.2, 1)', pseudoElement: '::view-transition-new(root)' },
+      );
+    }).catch(() => {});
+    t.finished.catch(() => {}).finally(() => html.classList.remove('theme-reveal'));
+  };
+
+  label();
+  button?.addEventListener('click', () => {
+    const next = html.dataset.theme === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('theme', next); } catch {}
+    const r = button.querySelector('.knob')!.getBoundingClientRect();
+    switchTo(next, r.left + r.width / 2, r.top + r.height / 2);
+  });
+
+  // Until the visitor picks, follow the system as it changes (e.g. at sunset).
+  system.addEventListener('change', (e) => {
+    let saved: string | null = null;
+    try { saved = localStorage.getItem('theme'); } catch {}
+    if (!saved) switchTo(e.matches ? 'light' : 'dark', innerWidth - 40, 40);
+  });
+</script>

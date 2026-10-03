@@ -1,5 +1,6 @@
 ---
 import { site } from '../site';
+import ThemeToggle from './ThemeToggle.astro';
 
 const onHome = Astro.url.pathname === '/';
 const links = [
@@ -15,6 +16,7 @@ const links = [
     {links.map(({ href, label }) => (
       <a href={onHome && href.startsWith('/#') ? href.slice(1) : href}>{label}</a>
     ))}
+    <ThemeToggle />
   </nav>
 </header>
 

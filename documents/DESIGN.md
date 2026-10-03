@@ -31,6 +31,23 @@ Warm near-black stage, warm white for people, **amber for money**. Amber only ap
 
 Worlds are set in `src/styles/global.css` under `[data-world='…']`.
 
+### Light mode
+
+The same floor printed on warm paper. `data-theme` on `<html>` is set before first paint (Base.astro): the visitor's saved choice, otherwise the system setting, which it keeps following until they pick. Components only read tokens, so a new token needs a value in both blocks of `global.css` and nothing else.
+
+| Token | Light value |
+| --- | --- |
+| `--paper` / `--paper-2` / `--paper-3` | `#f3efe6` / `#e9e4d8` / `#dfd9cb` |
+| `--ink` / `--muted` | `#16140f` / `#6b665c` |
+| `--line` | `#d8d1c2` |
+| `--signal` | `#a86400` (deeper amber, readable as text; `--on-signal` sits on it) |
+| `--gain` / `--loss` | `#15803d` / `#c62828` |
+| `--stage` / `--desk` / `--desk-bar` | engine floor `#ebe5d8` / `#f8f5ee` / `#e2dccd` |
+
+Open project panels keep their bright world colours in both themes. Labels that use a world colour as text read `--world-ink`, which is deepened on paper. The boot stays dark in both themes: it is a screen, not the page. The trading-floor canvas reads its colours from the tokens and repaints on the `themechange` event.
+
+The switch (`ThemeToggle.astro`, end of the nav) is a thin pill like the link chips; its knob slides across and turns from a moon into a sun. The new theme spreads out from the knob as a circle (view transitions), fades where those aren't supported, and swaps instantly with reduced motion.
+
 ## Copy
 
 Every number must tell a visitor something they care about: who it helps, what it does, what it caught. No test, commit or line counts on the home page.

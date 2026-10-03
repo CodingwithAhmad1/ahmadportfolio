@@ -4,6 +4,10 @@
  * colour of its own, all tuned to the same brightness so they read as a family.
  * When a project opens, its panel redefines the tokens below and every
  * component inside repaints itself.
+ *
+ * Two themes share every rule: dark (the stage) and light (the same floor printed
+ * on warm paper). `data-theme` on <html> is set before first paint in Base.astro,
+ * so components only ever read tokens and never ask which theme is on.
  */
 :root {
   --paper: #0b0b0c;
@@ -14,9 +18,16 @@
   --line: #24242c;
   --accent: #ffb000;
   --signal: #ffb000;
+  --on-signal: #0b0b0c;
   --ghost: rgba(237, 235, 230, 0.32);
   --gain: #4ade80;
   --loss: #f05252;
+  /* The engine sits a shade deeper than the page, like a room you walk into. */
+  --stage: #060607;
+  --desk: #0c0c0f;
+  --desk-bar: #141418;
+  --stage-line: #23232b;
+  --glow: rgba(255, 176, 0, 0.35);
   --display: 'Syne', system-ui, sans-serif;
   --body: 'Newsreader', Georgia, serif;
   --code: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -26,12 +37,49 @@
   interpolate-size: allow-keywords;
 }
 
+/* Light: warm paper, near-black ink, and a deeper amber that still reads as money. */
+:root[data-theme='light'] {
+  --paper: #f3efe6;
+  --paper-2: #e9e4d8;
+  --paper-3: #dfd9cb;
+  --ink: #16140f;
+  --muted: #6b665c;
+  --line: #d8d1c2;
+  --accent: #a86400;
+  --signal: #a86400;
+  --on-signal: #fff8ec;
+  --ghost: rgba(22, 20, 15, 0.3);
+  --gain: #15803d;
+  --loss: #c62828;
+  --stage: #ebe5d8;
+  --desk: #f8f5ee;
+  --desk-bar: #e2dccd;
+  --stage-line: #d3cbb9;
+  --glow: rgba(168, 100, 0, 0.22);
+  --grain-blend: multiply;
+  color-scheme: light;
+}
+
+/* Colour changes glide instead of snapping when the theme switches without a view transition. */
+html.theme-shift, html.theme-shift *:not([data-theme-toggle], [data-theme-toggle] *) {
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, fill 0.4s ease, stroke 0.4s ease !important;
+}
+/* With view transitions, the new theme spreads out from the toggle instead (see ThemeToggle.astro). */
+html.theme-reveal * { view-transition-name: none !important; }
+html.theme-reveal *:not([data-theme-toggle], [data-theme-toggle] *) { transition: none !important; }
+html.theme-reveal::view-transition-old(root),
+html.theme-reveal::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
 /* The worlds. `--world` is the panel colour, `--on` the text colour on it. */
 [data-world='student-atlas'] { --world: #ff6b3d; --on: #0b0b0c; }
 [data-world='reportiq'] { --world: #9b8cff; --on: #0b0b0c; }
 [data-world='jurislearning'] { --world: #e5486a; --on: #0b0b0c; }
 [data-world='speak-up'] { --world: #5eead4; --on: #0b0b0c; }
 [data-world='miran'] { --world: #ffb000; --on: #0b0b0c; }
+/* `--world-ink` is the world's colour used as text on the page: as-is on the dark
+   stage, deepened on paper so a teal or amber label still reads. */
+[data-world] { --world-ink: var(--world); }
+[data-theme='light'] [data-world] { --world-ink: color-mix(in oklab, var(--world) 58%, #000); }
 
 /* Inside an open world, every token follows its colours. */
 .in-world {
@@ -74,6 +122,7 @@ body::after {
   z-index: 100;
   pointer-events: none;
   opacity: 0.06;
+  mix-blend-mode: var(--grain-blend, normal);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -93,7 +142,7 @@ code, pre { font-family: var(--code); }
 
 img { max-width: 100%; height: auto; }
 
-::selection { background: var(--signal); color: #0b0b0c; }
+::selection { background: var(--signal); color: var(--on-signal); }
 
 :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 2px; }
 
@@ -170,8 +219,9 @@ img { max-width: 100%; height: auto; }
   }
 }
 
-/* Code blocks: dark theme on the stage. */
+/* Code blocks follow the theme. */
 .astro-code, .astro-code span { color: var(--shiki-dark); background-color: var(--paper-2); }
+[data-theme='light'] .astro-code, [data-theme='light'] .astro-code span { color: var(--shiki-light); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
