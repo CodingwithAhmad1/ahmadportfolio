@@ -13,10 +13,12 @@ Then open http://localhost:4321.
 
 ## Where things live
 
-- `src/site.ts`: name, intro, social links and projects
+- `src/site.ts`: name, age, intro and social links
+- `src/content/projects/`: case studies, one MDX file each
 - `src/content/blog/`: blog posts, one Markdown file each
 - `src/styles/global.css`: colours and fonts
-- `src/components/NameHero.astro`: the home page hero
+- `src/components/BacktestDemo.astro`: the playable Invictus backtest
+- `scripts/export-invictus-demo.py`: regenerates the demo data from the real engine
 
 ## Docs
 

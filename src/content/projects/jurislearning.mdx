@@ -1,0 +1,38 @@
+---
+title: JurisLearning
+tagline: A home for students heading into law, from the news to the LNAT.
+order: 4
+year: '2026'
+status: Launching soon
+stack: [FastAPI, PostgreSQL, SQLAlchemy, React, TypeScript, Tiptap, Render]
+proof: 36 pages, legal news pulled in every two hours, 40+ landmark cases in plain English.
+---
+
+import Note from '../../components/Note.astro';
+import Flow from '../../components/Flow.astro';
+
+## The problem
+
+Students applying to study law in the UK are told to read widely, think critically and show it. In practice that means a dozen news sites, a reading list, a notebook, and no way to see how anyone else thought about the same story.
+
+JurisLearning puts that in one place, and turns reading into a portfolio.
+
+## From reading to writing
+
+<Flow
+  label="How a student uses JurisLearning"
+  steps={[
+    { title: 'Read', detail: 'A personal feed of legal news, refreshed from chosen sources every two hours.' },
+    { title: 'Respond', detail: 'Any article, case or book can start a private journal entry.' },
+    { title: 'Publish', detail: 'The best entries become public posts with a rich-text editor.' },
+    { title: 'Compare', detail: 'See how other students responded to the same article.' },
+  ]}
+/>
+
+Alongside the feed there is a library of more than 40 landmark cases explained in plain English, a reviewed reading list, and full preparation for the LNAT admissions test, including a bank of 40 essay titles with planning angles.
+
+## Engineering
+
+The backend is asynchronous FastAPI on PostgreSQL. News and journal feeds are ingested on a schedule,<Note>News every 2 hours, journals every 6, in <code>backend/app/tasks/scheduler.py</code>.</Note> with source health checks, sanitised HTML, rate limiting and an admin dashboard for moderation. Database migrations run before every deploy, and CI fails if the models and migrations drift apart. The whole stack deploys from a single blueprint: database, API, web app and storage.
+
+JurisLearning is about to launch.

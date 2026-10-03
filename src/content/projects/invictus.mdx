@@ -1,0 +1,88 @@
+---
+title: Invictus
+tagline: A backtesting engine that refuses to flatter a strategy.
+order: 1
+year: '2026'
+status: Private
+stack: [Python 3.13, Numba, FastAPI, Parquet, React, Lightweight Charts, MCP]
+proof: 4,442 tests, and a 380-case regression baseline that proves nothing moved.
+flagship: true
+---
+
+import BacktestDemo from '../../components/BacktestDemo.astro';
+import Note from '../../components/Note.astro';
+import Knowability from '../../components/Knowability.astro';
+import { Image } from 'astro:assets';
+import research from '../../assets/work/invictus-research.png';
+
+## The problem
+
+Most backtests lie, and not on purpose. They fill orders at prices nobody could have traded at, ignore what the broker charges, and let you tune a strategy until it fits the past perfectly. The equity curve looks great right up until real money touches it.
+
+Invictus is a full research and trading platform built around one rule: **a result must carry the assumptions that produced it, and those assumptions must be ones you could actually trade under.**
+
+## See it lie, then see the truth
+
+The strategy below is a real one from the Invictus library, run by the real engine. The market is synthetic: Invictus generated it from a seeded random process, so there is no edge to find. Start from the naive setup, then add the costs a real broker charges.
+
+<BacktestDemo id="case-demo" />
+
+Without costs, the strategy makes about 18%. With half a basis point of commission and three quarters of slippage, the profit is mostly gone. Push either a little further and it loses money. Nothing about the strategy changed. Only the honesty did.
+
+## What is known, and when
+
+The engine is built on a written **knowability contract**: for every bar, exactly which prices exist at which instant.<Note>Defined in the docstring of <code>main/execution.py</code>, the module that holds the single fill core every feature runs through.</Note> A signal is computed at a bar's close, so it can only be filled at that close (optimistic but possible) or at the next bar's open (what you would actually get). The engine never guesses what happened inside a bar. When it needs to, it reads a finer series instead.
+
+<Knowability />
+
+Working orders follow the same rule. If a market gaps through your limit order, you are filled at the better open. If it gaps through your stop, you are filled at the worse one. That asymmetry is small in any one trade and decisive over a thousand.
+
+## A language where look-ahead can't be written
+
+Strategies are written in a small declarative language. It infers how much history each indicator needs before it can trade, and it has no way to express reading a future bar. This is the strategy from the demo, in full:
+
+```python
+@strategy("macd_atr_trend", stop=stops.trailing_atr(3.0, period=14), size=size.units(1.0))
+class MacdAtrTrend:
+    macd_fast = param(12, min=5, max=50)
+    macd_slow = param(26, min=10, max=100)
+    macd_signal = param(9, min=3, max=30)
+
+    def signals(self, bars, p):
+        macd = ta.ema(bars.close, p.macd_fast) - ta.ema(bars.close, p.macd_slow)
+        signal = ta.ema(macd, p.macd_signal)
+        atr = ta.atr(bars.high, bars.low, bars.close, 14)
+        trending = atr > ta.sma(atr, 20)
+
+        self.entry("long", when=ta.crossover(macd, signal) & trending)
+        self.entry("short", when=ta.crossunder(macd, signal) & trending)
+```
+
+The library behind `ta.*` has around a hundred functions, and tests hold every rolling one to linear time, whatever the window length.<Note>Enforced in <code>tests/test_dsl_ta.py</code>.</Note>
+
+## Rigour, built in
+
+A good-looking backtest is the start of the questions, not the end. Invictus answers the next ones without leaving the app:
+
+- **Walk-forward analysis**, rolling and anchored, showing how much a result degrades on data it never saw.
+- **Deflated Sharpe ratio**, which discounts a result for how many variations were tried to find it.
+- **Hansen's SPA test**, which asks whether the best strategy beats a benchmark by more than luck.
+- **Monte Carlo and parameter sensitivity**, to see whether a result survives being shaken.
+- **Prop firm evaluation**, simulating real funded-account rules day by day.
+
+## Engineering
+
+The fill core is compiled with Numba. Each execution model is turned into a fill delay and a price array before the loop runs, so the hot loop has no special cases.<Note>About 21 <code>@njit</code> kernels in <code>main/execution.py</code>.</Note> Every dataset and every result is stored by the hash of its contents, so an identical backtest is never run twice and every number can be traced to the exact inputs behind it.
+
+Paper and live trading run on a separate event-driven engine, held to the backtest by a parity report that replays each live session and compares fill for fill. An MCP server exposes 75 tools, so an AI agent can write, test and run strategies through the same checks a person would.
+
+<Image src={research} alt="The Invictus research view: a daily SPY candlestick chart with a hand-drawn trend line and support level, the backtest panel below." widths={[800, 1400]} sizes="(max-width: 1100px) 100vw, 1100px" class="shot" />
+
+## The proof
+
+- **4,442 tests**,<Note>Counted with <code>pytest --collect-only</code> on 3 October 2026.</Note> across 132 test files.
+- **380 regression cases** that pin exactly what the engine trades. Any change that moves a number fails the build until it is accepted on purpose, in its own commit, with a version bump.<Note>168 fill-core and 212 pipeline cases in <code>tests/regression/</code>.</Note>
+- **641 commits** in under eight months, about 108,000 lines of Python and 47,000 of interface code.<Note>From <code>git rev-list --count HEAD</code>; first commit 13 February 2026.</Note>
+- Lint, types and a coverage floor are gated in CI, and a deprecation warning fails the suite.
+
+The repository is private. The demo above is its real output.

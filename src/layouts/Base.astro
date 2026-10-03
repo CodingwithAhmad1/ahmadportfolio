@@ -20,6 +20,9 @@ const pageTitle = title ? `${title} | ${site.fullName}` : site.fullName;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,12 +30,25 @@ const pageTitle = title ? `${title} | ${site.fullName}` : site.fullName;
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Syne:wght@400..800&display=swap"
     />
+    <script is:inline>
+      // Apply a saved theme before first paint so the page never flashes.
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
   </head>
   <body>
+    <a class="skip" href="#main">Skip to content</a>
     <Header />
-    <main>
+    <main id="main">
       <slot />
     </main>
     <Footer />
   </body>
 </html>
+
+<style>
+  .skip { position: absolute; left: -999px; top: 0.5rem; }
+  .skip:focus { left: 0.5rem; background: var(--paper); padding: 0.5rem; z-index: 10; }
+</style>

@@ -1,39 +1,19 @@
-// Edit this file to change your name, intro, socials and projects.
+// Edit this file to change your name, age, intro and links.
 export const site = {
   name: 'Ahmad',
   fullName: 'Ahmad Azim',
-  description: 'Projects and writing by Ahmad Azim.',
+  // TODO: set your age (a number). It shows next to your name when set.
+  age: null as number | null,
+  description:
+    'Ahmad Azim builds software that has to be right: a backtesting engine, a self-updating visa guide, AI whistleblowing intake.',
   intro:
-    'I build things for the web and write about what I learn along the way. This is where the work and the notes live.',
+    'I build software that has to be right. A backtesting engine that refuses to flatter a strategy. A visa guide that checks 305 government sources twice a day. An intake assistant that is not allowed to misquote.',
 };
 
+// Links with an empty href are hidden. TODO: fill in LinkedIn, X and a public email.
 export const socials = [
   { label: 'GitHub', href: 'https://github.com/CodingwithAhmad1' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/' },
-  { label: 'X', href: 'https://x.com/' },
-  { label: 'Email', href: 'mailto:hello@example.com' },
-];
-
-export const projects = [
-  {
-    title: 'This website',
-    summary: 'A portfolio and blog built with Astro.',
-    year: '2026',
-    stack: 'Astro, CSS',
-    href: 'https://github.com/CodingwithAhmad1/ahmadportfolio',
-  },
-  {
-    title: 'Project two',
-    summary: 'One sentence on what it does and who it is for.',
-    year: '2026',
-    stack: 'TypeScript',
-    href: '#',
-  },
-  {
-    title: 'Project three',
-    summary: 'One sentence on what it does and who it is for.',
-    year: '2025',
-    stack: 'Python',
-    href: '#',
-  },
-];
+  { label: 'LinkedIn', href: '' },
+  { label: 'X', href: '' },
+  { label: 'Email', href: '' },
+].filter((s) => s.href);

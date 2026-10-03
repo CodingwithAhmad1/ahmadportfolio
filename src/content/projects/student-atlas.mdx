@@ -1,0 +1,44 @@
+---
+title: Student Atlas
+tagline: Visa guidance for international students that keeps itself up to date.
+order: 2
+year: '2026'
+status: Live
+stack: [React 19, TypeScript, Vite, Tailwind, GitHub Actions, MCP]
+links:
+  live: https://thestudentatlas.vercel.app
+proof: Checks 305 government sources every 12 hours. Half its commits are made by its own monitor.
+---
+
+import Note from '../../components/Note.astro';
+import Flow from '../../components/Flow.astro';
+import { Image } from 'astro:assets';
+import shot from '../../assets/work/atlas-home.png';
+
+## The problem
+
+Visa rules change quietly. A student reading a guide written last year can miss a new fee, a closed route or a changed deadline, and find out at the border. Most guides are accurate on the day they're written and drift from then on.
+
+Student Atlas gives tailored guidance on tourist, student and work visas and residency routes for 100 nationalities.<Note>The 100 most populous nationalities by the UN's mid-2023 estimate, each with a full row of 19 traits.</Note> Every fact is cited to an official source, 312 citations in all, and the site watches those sources for you.
+
+## How it stays true
+
+<Flow
+  label="The source monitoring loop"
+  steps={[
+    { title: 'Watch', detail: 'A scheduled job fetches every cited government page twice a day.' },
+    { title: 'Compare', detail: 'Each page is checked against its last snapshot. Only substantive changes count.' },
+    { title: 'Alert', detail: 'A change opens one alert for that page, linked to every passage that cites it.' },
+    { title: 'Review', detail: 'Claude reviews the change next to the affected text through an MCP server, and drafts any edit.' },
+    { title: 'Publish', detail: 'The edit is type-checked, merged, and shown to readers in the Activity feed.' },
+  ]}
+  loop="Then the next check, 12 hours later."
+/>
+
+The monitor watches 305 unique sources<Note>Unique URLs in <code>frontend/src/data/citations.ts</code>; schedule in <code>.github/workflows/student-atlas-monitor.yml</code>.</Note> and has committed to the repository 87 times on its own, about as often as I have.
+
+## Content as code
+
+Guidance is assembled from four layers: a table of facts per nationality, base content for each country, alternative blocks such as electronic travel authorisations, and hand-written notes per nationality. A content checker blocks the build if a citation, glossary term or anchor is missing, so a broken page can't ship. There is no database and no server: the site is static and fast.
+
+<Image src={shot} alt="Student Atlas home page with navigation for tourist, student and work visas and residency pathways." widths={[800, 1400]} sizes="(max-width: 1100px) 100vw, 1100px" class="shot" />

@@ -5,6 +5,7 @@ Notes for building and maintaining this site over time. Start with the plan.
 | File | What it's for |
 | --- | --- |
 | [PLAN.md](PLAN.md) | Goals, roadmap by phase, and the current to-do list |
+| [V2-PLAN.md](V2-PLAN.md) | The v2 redesign: project case studies and the Invictus demo |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | How the code is organised and why |
 | [DESIGN.md](DESIGN.md) | Colours, type, layout rules and the things to avoid |
 | [CONTENT.md](CONTENT.md) | How to add a post or a project, and a writing checklist |

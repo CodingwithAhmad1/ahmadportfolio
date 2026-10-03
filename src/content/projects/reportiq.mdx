@@ -1,0 +1,47 @@
+---
+title: ReportIQ
+tagline: AI whistleblowing intake that is not allowed to misquote, and finds where policy falls short.
+order: 3
+year: '2026'
+status: Open source
+stack: [FastAPI, Gemini, ChromaDB, BM25, React, TypeScript, MCP]
+links:
+  repo: https://github.com/CodingwithAhmad1/Whistleblowing
+proof: Every quote is checked word for word against the source. The AI picks questions but never writes them.
+---
+
+import Note from '../../components/Note.astro';
+import Flow from '../../components/Flow.astro';
+import { Image } from 'astro:assets';
+import shot from '../../assets/work/reportiq-analysis.png';
+
+## The problem
+
+Reporting misconduct is hard, and harder still in a second language. Reports arrive vague or missing the details an investigator needs, and asking for them is delicate. Meanwhile, the same kind of conduct can keep falling through gaps in company policy without anyone noticing a pattern.
+
+ReportIQ helps the person reporting write something actionable, and helps the organisation see what its policy doesn't cover. It was built and tested against a code of conduct modelled on a large manufacturer's.
+
+## Three layers, and where the AI stops
+
+<Flow
+  label="How a report is processed"
+  steps={[
+    { title: 'Extract', detail: 'A language model turns the account into structured fields: dates, people, places, evidence.' },
+    { title: 'Find gaps', detail: 'Fixed rules, not the model, decide what is missing, such as no date or no example.' },
+    { title: 'Ask', detail: 'Up to two follow-up questions are chosen from an approved set. The model never writes its own.' },
+  ]}
+/>
+
+The split is deliberate. The model is good at reading messy writing, so it reads. Deciding what an investigator needs and how to ask a frightened person for it is left to rules people can review.
+
+## Checking against policy and law
+
+Each account is matched against two bodies of text at once: the company's own policy and the EU Whistleblower Directive. Retrieval combines meaning-based search with keyword search, then re-ranks the results.<Note>Dense embeddings and BM25 fused with reciprocal rank fusion, then an LLM re-rank. See <code>backend/app/rag/</code>.</Note> The result says whether the conduct is covered by policy, by law, by both or by neither, and every quote it shows is verified character for character against the original.
+
+## Closing the gaps
+
+Conduct that neither policy covers is grouped as it builds up. Once enough similar reports arrive close together, ReportIQ proposes an amendment attached to a specific existing clause. A person accepts, edits or rejects it. Nothing changes policy on its own.
+
+<Image src={shot} alt="ReportIQ analysis page showing the three layers: extracted fields, the gap that was detected, and the follow-up question selected." widths={[600, 900]} sizes="(max-width: 700px) 100vw, 640px" class="shot narrow" />
+
+The full source is on GitHub.

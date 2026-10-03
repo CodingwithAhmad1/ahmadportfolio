@@ -20,23 +20,60 @@
 
 ## Add a project
 
-Add an entry to the `projects` array in `src/site.ts`:
+1. Create `src/content/projects/my-project.mdx`. The filename becomes `/work/my-project`.
+2. Start it with front matter:
 
-```ts
-{
-  title: 'Project name',
-  summary: 'One sentence on what it does and who it is for.',
-  year: '2026',
-  stack: 'TypeScript, Postgres',
-  href: 'https://github.com/CodingwithAhmad1/repo',
-},
+   ```md
+   ---
+   title: My Project
+   tagline: One sentence on what it is.
+   order: 6                 # position in lists; the flagship is 1
+   year: '2026'
+   status: Live             # Live, Open source, Private, Launching soon or In use
+   stack: [TypeScript, Postgres]
+   links:
+     live: https://...      # optional
+     repo: https://...      # optional, public repos only
+   proof: The single strongest, checkable fact. Shown when a visitor hovers the row.
+   ---
+   ```
+
+3. Write the case study: the problem, how it works, the engineering, the proof.
+4. Diagrams: import `Flow` and pass the steps. Screenshots: put the PNG in `src/assets/work/` and use `<Image>` with `class="shot"`.
+
+## Back every number
+
+Any number that a reader might doubt gets a note saying where it came from:
+
+```mdx
+import Note from '../../components/Note.astro';
+
+The monitor watches 305 sources.<Note>Unique URLs in <code>citations.ts</code>.</Note>
 ```
 
-Newest first. The home page shows the first three.
+On wide screens the note sits in the margin; on phones it drops under the line.
+
+## Refresh the Invictus numbers
+
+Run these in `../backtestengine` and update the home page (`src/pages/index.astro`) and `src/content/projects/invictus.mdx`, numbers and notes together:
+
+```bash
+.venv/bin/python -m pytest --co -q 2>&1 | grep -E "^tests/.*: [0-9]+$" | awk -F': ' '{s+=$2} END {print s " tests in " NR " files"}'
+```
+
+```bash
+git rev-list --count HEAD
+```
+
+To regenerate the demo after the engine changes, from this repo:
+
+```bash
+../backtestengine/.venv/bin/python scripts/export-invictus-demo.py
+```
 
 ## Update socials or intro
 
-Both live in `src/site.ts`. Remove a social link by deleting its line.
+Both live in `src/site.ts`, along with your age. A social link with an empty `href` is hidden.
 
 ## Writing checklist
 

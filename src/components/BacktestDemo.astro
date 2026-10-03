@@ -1,0 +1,264 @@
+---
+import { variants, price, range, meta, path, gap, yOf, pct, NAIVE, DEFAULT } from '../lib/demo';
+
+interface Props {
+  id?: string;
+}
+const { id = 'demo' } = Astro.props;
+
+const naive = variants[NAIVE];
+const current = variants[DEFAULT];
+const priceMin = Math.min(...price);
+const priceMax = Math.max(...price);
+
+const start = new Date(`${meta.market.start}T00:00:00Z`).getTime();
+const years = [2020, 2021, 2022, 2023, 2024].map((y) => ({
+  y,
+  x: ((Date.UTC(y, 0, 1) - start) / 86_400_000 / meta.lastDay) * 100,
+}));
+const yTicks = [0.9, 1.0, 1.1, 1.2].filter((v) => v > range.min && v < range.max);
+
+const groups = [
+  {
+    name: 'fill',
+    legend: 'Fill timing',
+    options: [
+      { value: 'same_bar_close', label: 'Same bar close' },
+      { value: 'next_bar_open', label: 'Next bar open' },
+    ],
+  },
+  {
+    name: 'fee',
+    legend: 'Commission',
+    options: [
+      { value: '0', label: '0 bps' },
+      { value: '0.5', label: '0.5 bps' },
+      { value: '1.0', label: '1 bps' },
+    ],
+  },
+  {
+    name: 'slip',
+    legend: 'Slippage',
+    options: [
+      { value: '0', label: '0 bps' },
+      { value: '0.75', label: '0.75 bps' },
+      { value: '1.5', label: '1.5 bps' },
+    ],
+  },
+];
+const [dFill, dFee, dSlip] = DEFAULT.split('|');
+const defaults: Record<string, string> = { fill: dFill, fee: dFee, slip: dSlip };
+
+const k = current.kpis;
+const payload = JSON.stringify({ variants, range });
+---
+
+<figure class="demo wide" id={id} data-demo>
+  <form class="controls" aria-label="Backtest assumptions">
+    {groups.map((g) => (
+      <fieldset>
+        <legend>{g.legend}</legend>
+        <div class="seg">
+          {g.options.map((o) => (
+            <label>
+              <input type="radio" name={`${id}-${g.name}`} data-group={g.name} value={o.value} checked={defaults[g.name] === o.value} />
+              <span>{o.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    ))}
+    <button type="button" class="reset" data-naive>Show the naive backtest</button>
+  </form>
+
+  <div class="chart">
+    <div class="price" aria-hidden="true">
+      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+        <path d={path(price, priceMin, priceMax)} />
+      </svg>
+      <span class="tag">Market: synthetic, no edge by construction</span>
+    </div>
+
+    <div class="equity">
+      <svg viewBox="0 0 1000 100" preserveAspectRatio="none" role="img" aria-labelledby={`${id}-desc`}>
+        {yTicks.map((v) => <line class="grid" x1="0" x2="1000" y1={yOf(v, range)} y2={yOf(v, range)} />)}
+        <path class="gap" data-gap d={gap(naive.curve, current.curve, range.min, range.max)} />
+        <path class="naive" d={path(naive.curve, range.min, range.max)} />
+        <path class="current" data-current d={path(current.curve, range.min, range.max)} />
+      </svg>
+      {yTicks.map((v) => (
+        <span class="ylabel" style={`top:${yOf(v, range)}%`}>{v === 1 ? 'Start' : pct(v - 1, 0)}</span>
+      ))}
+      <span class="end naive-end" style={`top:${yOf(naive.curve.at(-1)!, range)}%`}>Naive {pct(naive.kpis.return)}</span>
+      <span class="end current-end" data-end style={`top:${yOf(current.curve.at(-1)!, range)}%`}>{pct(k.return)}</span>
+    </div>
+
+    <div class="years" aria-hidden="true">
+      {years.map((t) => <span style={`left:${t.x}%`}>{t.y}</span>)}
+    </div>
+  </div>
+
+  <dl class="kpis" aria-live="polite">
+    <div><dt>Return</dt><dd data-k="return" class={k.return >= 0 ? 'up' : 'down'}>{pct(k.return)}</dd></div>
+    <div><dt>Sharpe (annual)</dt><dd data-k="sharpe">{k.sharpe.toFixed(2)}</dd></div>
+    <div><dt>Profit factor</dt><dd data-k="pf">{k.pf.toFixed(2)}</dd></div>
+    <div><dt>Max drawdown</dt><dd data-k="maxdd">{(k.maxdd * 100).toFixed(1)}%</dd></div>
+    <div><dt>Lost to reality</dt><dd data-k="lost">{((naive.kpis.return - k.return) * 100).toFixed(1)} pts</dd></div>
+  </dl>
+
+  <figcaption id={`${id}-desc`}>
+    Strategy <code>{meta.strategy}</code> on a seeded synthetic market ({meta.market.profile}, seed {meta.market.seed}),
+    {meta.market.bars.toLocaleString('en-GB')} four-hour bars, 2019 to 2024. The grey line is the naive backtest: fills at the
+    signal bar's close, no costs. The blue line is the same strategy under the assumptions you choose. Every number
+    was produced by Invictus and exported unchanged.
+  </figcaption>
+
+  <script type="application/json" data-payload set:html={payload} />
+</figure>
+
+<style>
+  .demo { margin: 0; }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 1rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  legend { font-family: var(--display); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; padding: 0; }
+  .seg { display: inline-flex; border: 1px solid var(--ink); border-radius: 999px; padding: 2px; }
+  .seg label { position: relative; cursor: pointer; }
+  .seg input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+  .seg span {
+    display: block;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-family: var(--display);
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .seg input:checked + span { background: var(--ink); color: var(--paper); }
+  .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .reset {
+    margin-left: auto;
+    background: none;
+    border: 0;
+    padding: 0.35rem 0;
+    font: 600 0.9rem var(--display);
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+
+  .chart { position: relative; padding-right: 5.5rem; }
+  .price { position: relative; height: 56px; margin-bottom: 0.75rem; }
+  .price svg, .equity svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .price path { fill: none; stroke: var(--ghost); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .tag { position: absolute; top: 0; left: 0; font-size: 0.8rem; color: var(--muted); background: var(--demo-bg, var(--paper)); padding-right: 0.5rem; }
+
+  .equity { position: relative; height: clamp(240px, 36vw, 380px); border-bottom: 1px solid var(--ink); }
+  .grid { stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .naive { fill: none; stroke: var(--ghost); stroke-width: 1.5; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+  .current { fill: none; stroke: var(--accent); stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .gap { fill: var(--accent); opacity: 0.1; }
+  .ylabel, .end {
+    position: absolute;
+    transform: translateY(-50%);
+    font-family: var(--display);
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .ylabel { left: 0; color: var(--muted); background: var(--demo-bg, var(--paper)); padding-right: 0.4rem; }
+  .end { right: -5.5rem; width: 5rem; font-weight: 700; }
+  .naive-end { color: var(--muted); font-weight: 500; }
+  .current-end { color: var(--accent); transition: top 0.45s ease; }
+
+  .years { position: relative; height: 1.75rem; }
+  .years span { position: absolute; top: 0.4rem; transform: translateX(-50%); font-size: 0.8rem; color: var(--muted); }
+
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin: 1.75rem 0 1.25rem;
+  }
+  .kpis div { border-top: 1px solid var(--line); padding-top: 0.6rem; }
+  dt { font-size: 0.85rem; color: var(--muted); }
+  dd { margin: 0.1rem 0 0; font: 700 clamp(1.4rem, 3vw, 2rem) / 1.1 var(--display); font-variant-numeric: tabular-nums; }
+  dd.up { color: var(--gain); }
+  dd.down { color: var(--loss); }
+  figcaption { font-size: 0.9rem; color: var(--muted); max-width: var(--measure); }
+  figcaption code { font-size: 0.85em; }
+
+  @media (max-width: 760px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .reset { margin-left: 0; }
+    .chart { padding-right: 4.25rem; }
+    .end { right: -4.25rem; width: 4rem; font-size: 0.75rem; }
+    .seg span { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+  }
+</style>
+
+<script>
+  import { path, gap, yOf, pct, key, NAIVE, type Kpis } from '../lib/chart';
+
+  type Payload = { variants: Record<string, { curve: number[]; kpis: Kpis }>; range: { min: number; max: number } };
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-demo]')) {
+    const { variants, range } = JSON.parse(root.querySelector('[data-payload]')!.textContent!) as Payload;
+    const naive = variants[NAIVE];
+    const line = root.querySelector<SVGPathElement>('[data-current]')!;
+    const area = root.querySelector<SVGPathElement>('[data-gap]')!;
+    const end = root.querySelector<HTMLElement>('[data-end]')!;
+    const out = (k: string) => root.querySelector<HTMLElement>(`[data-k="${k}"]`)!;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const value = (g: string) => root.querySelector<HTMLInputElement>(`input[data-group="${g}"]:checked`)!.value;
+    let shown = variants[key(value('fill'), value('fee'), value('slip'))].curve;
+    let frame = 0;
+
+    const draw = (curve: number[]) => {
+      line.setAttribute('d', path(curve, range.min, range.max));
+      area.setAttribute('d', gap(naive.curve, curve, range.min, range.max));
+    };
+
+    const update = () => {
+      const v = variants[key(value('fill'), value('fee'), value('slip'))];
+      const k = v.kpis;
+      out('return').textContent = pct(k.return);
+      out('return').className = k.return >= 0 ? 'up' : 'down';
+      out('sharpe').textContent = k.sharpe.toFixed(2);
+      out('pf').textContent = k.pf.toFixed(2);
+      out('maxdd').textContent = `${(k.maxdd * 100).toFixed(1)}%`;
+      out('lost').textContent = `${((naive.kpis.return - k.return) * 100).toFixed(1)} pts`;
+      end.textContent = pct(k.return);
+      end.style.top = `${yOf(v.curve.at(-1)!, range)}%`;
+
+      cancelAnimationFrame(frame);
+      const from = shown;
+      const to = v.curve;
+      if (reduce) { draw(to); shown = to; return; }
+      const t0 = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - t0) / 450);
+        const e = 1 - Math.pow(1 - t, 3);
+        shown = from.map((a, i) => a + (to[i] - a) * e);
+        draw(shown);
+        if (t < 1) frame = requestAnimationFrame(step);
+      };
+      frame = requestAnimationFrame(step);
+    };
+
+    root.addEventListener('change', update);
+    root.querySelector('[data-naive]')!.addEventListener('click', () => {
+      const [fill, fee, slip] = NAIVE.split('|');
+      root.querySelector<HTMLInputElement>(`input[data-group="fill"][value="${fill}"]`)!.checked = true;
+      root.querySelector<HTMLInputElement>(`input[data-group="fee"][value="${fee}"]`)!.checked = true;
+      root.querySelector<HTMLInputElement>(`input[data-group="slip"][value="${slip}"]`)!.checked = true;
+      update();
+    });
+  }
+</script>

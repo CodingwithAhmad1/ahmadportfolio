@@ -1,6 +1,5 @@
 ---
 import { site } from '../site';
-import Socials from './Socials.astro';
 
 const letters = [...site.name];
 ---
@@ -10,8 +9,8 @@ const letters = [...site.name];
     {letters.map((ch) => <span aria-hidden="true">{ch}</span>)}
   </h1>
   <div class="about">
+    {site.age && <p class="age">{site.fullName}, {site.age}</p>}
     <p class="intro">{site.intro}</p>
-    <Socials />
   </div>
 </section>
 
@@ -19,7 +18,8 @@ const letters = [...site.name];
   .hero { padding-top: clamp(2rem, 8vh, 6rem); }
   h1 {
     margin: 0;
-    font-size: clamp(5.5rem, 24vw, 21rem);
+    font-size: clamp(4.5rem, 21vw, 17rem);
+    white-space: nowrap;
     line-height: 0.85;
     letter-spacing: -0.04em;
     font-weight: 400;
@@ -37,6 +37,7 @@ const letters = [...site.name];
     margin-top: 2.5rem;
     margin-left: auto;
   }
+  .age { margin: 0; font-family: var(--display); font-weight: 600; }
   .intro { margin: 0; font-size: 1.375rem; line-height: 1.5; }
   @media (max-width: 700px) {
     .about { margin-left: 0; }

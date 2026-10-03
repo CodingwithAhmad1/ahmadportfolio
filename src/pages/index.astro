@@ -2,7 +2,14 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import NameHero from '../components/NameHero.astro';
-import { projects } from '../site';
+import BacktestDemo from '../components/BacktestDemo.astro';
+import ProjectRows from '../components/ProjectRows.astro';
+import Note from '../components/Note.astro';
+import { getProjects } from '../lib/projects';
+
+const projects = await getProjects();
+const flagship = projects.find((p) => p.data.flagship)!;
+const others = projects.filter((p) => !p.data.flagship);
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -13,39 +20,115 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
 <Base>
   <NameHero />
 
-  <section class="wrap block">
-    <h2>Selected work</h2>
-    <ul class="rows">
-      {projects.slice(0, 3).map((p) => (
-        <li>
-          <a href={p.href}>
-            <span class="title">{p.title}</span>
-            <span class="meta">{p.stack}, {p.year}</span>
-            <span class="summary">{p.summary}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-    <p><a href="/work">See all work</a></p>
+  <section class="flagship" aria-labelledby="flagship-title">
+    <div class="wrap">
+      <div class="flag-head">
+        <h2 id="flagship-title" style={`view-transition-name: title-${flagship.id}`}>{flagship.data.title}</h2>
+        <p class="flag-tag">{flagship.data.tagline}</p>
+      </div>
+
+      <div class="prose flag-copy">
+        <p>
+          My backtesting engine, running live on this page. A real strategy, a market generated with no edge at all, and
+          the engine's own output. Switch to the naive backtest and it looks like a winner. Add what a broker actually
+          charges and the edge disappears. Invictus is built to show you that before your money does.
+        </p>
+      </div>
+
+      <BacktestDemo id="home-demo" />
+
+      <dl class="proof prose">
+        <div>
+          <dt>Tests</dt>
+          <dd>4,442<Note>Counted with <code>pytest --collect-only</code>, 3 October 2026.</Note></dd>
+        </div>
+        <div>
+          <dt>Regression cases</dt>
+          <dd>380<Note>Pinned trades in <code>tests/regression/</code>. A change that moves one fails the build.</Note></dd>
+        </div>
+        <div>
+          <dt>Commits</dt>
+          <dd>641<Note>Since 13 February 2026, from <code>git rev-list</code>.</Note></dd>
+        </div>
+      </dl>
+
+      <p class="more"><a href={`/work/${flagship.id}`}>How Invictus works</a></p>
+    </div>
   </section>
 
   <section class="wrap block">
-    <h2>Recent writing</h2>
-    <ul class="rows">
-      {posts.map((post) => (
-        <li>
-          <a href={`/blog/${post.id}`}>
-            <span class="title">{post.data.title}</span>
-            <time class="meta" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
-            <span class="summary">{post.data.description}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-    <p><a href="/blog">Read all posts</a></p>
+    <h2>More work</h2>
+    <ProjectRows projects={others} />
   </section>
+
+  {posts.length > 0 && (
+    <section class="wrap block">
+      <h2>Writing</h2>
+      <ul class="rows">
+        {posts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}`}>
+              <span class="title">{post.data.title}</span>
+              <time class="meta" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+              <span class="summary">{post.data.description}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p><a href="/blog">All writing</a></p>
+    </section>
+  )}
 </Base>
 
 <style>
+  .flagship {
+    margin-top: clamp(4rem, 12vh, 8rem);
+    padding: clamp(3rem, 8vh, 5rem) 0;
+    background: var(--paper-2);
+    border-top: 2px solid var(--ink);
+  }
+  .flag-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .flag-head h2 {
+    margin: 0;
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+  }
+  .flag-tag { margin: 0; font-size: clamp(1.15rem, 2vw, 1.4rem); max-width: 26ch; }
+  .flag-copy { margin-bottom: 2.5rem; }
+  .flag-copy p { margin: 0; }
+  .flagship { --demo-bg: var(--paper-2); }
+
+  .proof {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 13rem));
+    gap: 1.5rem;
+    margin: 2.5rem 0 0;
+  }
+  .proof > div { max-width: none; }
+  .proof dt { font-size: 0.85rem; color: var(--muted); }
+  .proof dd { margin: 0; font: 800 clamp(2rem, 5vw, 3rem) / 1 var(--display); letter-spacing: -0.02em; }
+  .proof :global(.note) {
+    float: none;
+    display: block;
+    width: auto;
+    margin: 0.5rem 0 0;
+    font: 400 0.8rem/1.4 var(--body);
+    letter-spacing: 0;
+    padding: 0;
+    border: 0;
+  }
+  .more { margin: 2.5rem 0 0; font-family: var(--display); font-weight: 600; font-size: 1.1rem; }
   .block { margin-top: clamp(4rem, 10vh, 7rem); }
+
+  @media (max-width: 640px) {
+    .proof { grid-template-columns: 1fr; }
+  }
 </style>

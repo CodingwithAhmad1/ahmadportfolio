@@ -1,0 +1,79 @@
+---
+// Two bars on a timeline: what the engine knows at each instant, and where each
+// execution model fills a signal computed at the first bar's close.
+const moments = [
+  { title: 'Open of bar i', detail: 'Only the open price exists. High, low and close are unknown.' },
+  { title: 'During bar i', detail: 'The path is never assumed. A finer series is read instead.' },
+  { title: 'Close of bar i', detail: 'All four prices are known. The signal is computed now.', key: true },
+  { title: 'Same bar close', detail: 'Fills at this close. Possible, but assumes zero delay.', fill: 'optimistic' },
+  { title: 'Next bar open', detail: 'Fills at the next price anyone could trade. Use this.', fill: 'realistic' },
+];
+---
+
+<figure class="knowability wide" aria-label="The knowability contract">
+  <div class="track">
+    <svg viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
+      <rect class="span" x="40" y="10" width="380" height="140" />
+      <rect class="span next" x="580" y="10" width="380" height="140" />
+      <line class="wick" x1="230" x2="230" y1="22" y2="140" />
+      <rect class="body" x="190" y="50" width="80" height="62" />
+      <line class="wick" x1="770" x2="770" y1="34" y2="132" />
+      <rect class="body next" x="730" y="64" width="80" height="44" />
+      <line class="axis" x1="0" x2="1000" y1="158" y2="158" />
+    </svg>
+    <span class="bar-label" style="left:23%">bar i</span>
+    <span class="bar-label" style="left:77%">bar i + 1</span>
+  </div>
+
+  <ol class="moments">
+    {moments.map((m) => (
+      <li class:list={[m.key && 'key', m.fill]}>
+        <strong>{m.title}</strong>
+        <span>{m.detail}</span>
+      </li>
+    ))}
+  </ol>
+</figure>
+
+<style>
+  .knowability { margin: 3rem 0; }
+  .track { position: relative; height: 140px; }
+  svg { display: block; width: 100%; height: 100%; }
+  .span { fill: var(--paper-2); }
+  .wick { stroke: var(--ink); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .body { fill: var(--ink); }
+  .body.next { fill: none; stroke: var(--ink); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-dasharray: 4 3; }
+  .axis { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .bar-label {
+    position: absolute;
+    bottom: -1.75rem;
+    transform: translateX(-50%);
+    font: 600 0.85rem var(--display);
+    color: var(--muted);
+  }
+
+  .moments {
+    list-style: none;
+    position: relative;
+    margin: 2.75rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  li { border-top: 2px solid var(--ink); padding-top: 0.6rem; }
+  li.key { border-top-color: var(--accent); }
+  li.optimistic { border-top-style: dashed; border-top-color: var(--ghost); }
+  li.realistic { border-top-color: var(--accent); border-top-width: 4px; }
+  strong { display: block; font-family: var(--display); font-weight: 600; margin-bottom: 0.2rem; }
+  span { color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .moments { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 520px) {
+    .moments { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,35 @@
+---
+title: Speak Up
+tagline: A digital student parliament for Dubai College.
+order: 5
+year: '2026'
+status: Private
+stack: [Flask, SQLAlchemy, SQLite, Claude API, Jinja]
+proof: Five roles, anonymous posting that stays anonymous, and AI-drafted responses for prefects.
+---
+
+import Note from '../../components/Note.astro';
+import Flow from '../../components/Flow.astro';
+
+## The problem
+
+Students have ideas about their school, but a suggestion box loses them and a meeting only hears the loudest voices. Prefects need a way to collect ideas, see which ones matter to most students, and show that something happened.
+
+Speak Up is Dubai College's student parliament, online.
+
+## From idea to answer
+
+<Flow
+  label="How an idea moves through Speak Up"
+  steps={[
+    { title: 'Post', detail: 'A student posts an idea with their name, anonymously, or privately to prefects.' },
+    { title: 'Vote', detail: 'Other students vote, so the ideas most people care about rise.' },
+    { title: 'Triage', detail: 'Prefects sort suggestions and assign them to class reps.' },
+    { title: 'Debate', detail: 'Live parliament sessions work through the list together.' },
+    { title: 'Respond', detail: 'Prefects reply publicly, with a first draft from Claude if they want one.' },
+  ]}
+/>
+
+## Built for a school
+
+Five roles, from student to a master account, each see and do only what they should. Anonymous posts stay anonymous to everyone, including the people running it. Sign-in limits are tuned for a whole school sharing one network: five attempts a minute per student, fifty per address.<Note>Set in <code>constants.py</code>, with the policy tested in the app's test suite.</Note> A strict content security policy allows no inline scripts, and the app refuses to leave itself without an administrator.

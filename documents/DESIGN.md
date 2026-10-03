@@ -2,7 +2,9 @@
 
 ## Idea
 
-Quiet, confident, and a little playful in exactly one place. The giant name in the hero is the memorable moment. Everything else stays calm so it can stand out.
+**Show your working.** Other portfolios make claims; this one shows proof. Every number carries a note saying where it came from, and the best project can be used right on the page.
+
+Quiet and confident, with one bold moment per page: the giant name on the home page, the playable backtest in the Invictus band, the oversized title on each case study. Everything else stays calm so those stand out.
 
 ## Colour
 
@@ -12,7 +14,10 @@ Quiet, confident, and a little playful in exactly one place. The giant name in t
 | `--ink` | `#17241e` | `#e2e8e0` | Main text (deep pine) |
 | `--muted` | `#5e6b63` | `#93a097` | Secondary text, dates, meta |
 | `--line` | `#c3cbc2` | `#2c3832` | Dividers |
-| `--accent` | `#2b44d6` | `#9aa8ff` | Links, hover, focus (cobalt ink) |
+| `--accent` | `#2b44d6` | `#9aa8ff` | Links, hover, focus, the live line in the demo (cobalt ink) |
+| `--paper-2` | `#dde2da` | `#18221d` | The flagship band, code blocks, diagram fills |
+| `--ghost` | `#9aa59c` | `#56635a` | The naive backtest line, the price strip |
+| `--gain` / `--loss` | `#2f7a4f` / `#b4442f` | `#6fcf97` / `#f08a73` | Positive and negative returns only |
 
 Use the accent sparingly: links, hover states, focus rings. Never as a large fill.
 
@@ -28,11 +33,18 @@ Use the accent sparingly: links, hover states, focus rings. Never as a large fil
 - Projects and posts are **rows separated by lines**, not cards.
 - Generous vertical space between sections instead of boxes and backgrounds.
 
+## Evidence notes
+
+A small cobalt number after a claim, and the source in the right margin, like a footnote you never have to scroll to. On phones the note drops under its line with a thin rule. Use them for numbers and technical claims, not for every sentence.
+
 ## Motion
 
-- Only the hero letters move, and only in response to the pointer.
+- The hero letters thicken as the pointer approaches.
+- The demo curve glides to its new shape when a control changes, so you see what the change did.
+- Project titles morph between the list and the case study (CSS view transitions; browsers without support just load the page).
+- Nothing moves on its own.
 - Respect `prefers-reduced-motion`: the effect switches off.
-- No fade-in-on-scroll, no hover animations on every element.
+- No fade-in-on-scroll, no loading screen, no hover animations on every element.
 
 ## Avoid
 
