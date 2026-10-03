@@ -1,5 +1,6 @@
 ---
 // A deck of the landmark cases JurisLearning explains, taken from its seed data.
+// Click (or press Enter on) the card and it flips over to the next case.
 import cases from '../../data/juris-cases.json';
 
 const first = cases[0];
@@ -9,7 +10,7 @@ const first = cases[0];
   <div class="stack">
     <span class="ghost g2" aria-hidden="true"></span>
     <span class="ghost g1" aria-hidden="true"></span>
-    <article class="card" data-card aria-live="polite">
+    <article class="card" data-card aria-live="polite" role="button" tabindex="0" aria-label="Show the next case">
       <p class="year" data-f="year">{first.year}</p>
       <h4 data-f="title">{first.title}</h4>
       <p class="court" data-f="court">{first.court}</p>
@@ -17,16 +18,13 @@ const first = cases[0];
       <p class="why"><b>Why it matters.</b> <span data-f="why">{first.why}</span></p>
     </article>
   </div>
-  <div class="controls">
-    <button type="button" data-next>Next case</button>
-    <span class="pos"><span data-pos>1</span> of {cases.length}</span>
-  </div>
+  <p class="pos"><span data-pos>1</span> of {cases.length}</p>
   <script type="application/json" data-cases set:html={JSON.stringify(cases)} />
 </div>
 
 <style>
   .deck { max-width: 44rem; }
-  .stack { position: relative; padding: 0 0 1.25rem 1.25rem; }
+  .stack { position: relative; padding: 0 0 1.25rem 1.25rem; perspective: 1400px; }
   .ghost, .card { border-radius: 10px; }
   .ghost { position: absolute; inset: 0 1.25rem 1.25rem 0; background: var(--ink); }
   .g1 { transform: translate(0.6rem, 0.6rem); opacity: 0.35; }
@@ -38,27 +36,21 @@ const first = cases[0];
     padding: clamp(1.25rem, 3vw, 2rem);
     min-height: 22rem;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-    transition: transform 0.4s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.4s;
+    cursor: pointer;
+    transform-origin: center;
+    transition: transform 0.25s cubic-bezier(0.3, 0.7, 0.2, 1);
   }
-  .card.out { transform: translateX(110%) rotate(8deg); opacity: 0; }
-  .card.in { transform: translateY(1rem) scale(0.97); opacity: 0; transition: none; }
+  .card:hover { transform: translateY(-3px) rotateY(-4deg); }
+  .card:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+  /* The flip: the card turns edge-on, the next case is swapped in, and it turns back. */
+  .card.flip-out { transform: rotateY(90deg); transition: transform 0.22s cubic-bezier(0.55, 0, 1, 0.45); }
+  .card.flip-in { transform: rotateY(-90deg); transition: none; }
   .year { margin: 0; font: 800 clamp(3rem, 7vw, 4.5rem) / 1 var(--display); letter-spacing: -0.03em; color: #c22a4f; }
   h4 { margin: 0.5rem 0 0.15rem; font: 700 1.35rem / 1.2 var(--display); }
   .court { margin: 0 0 1rem; font-size: 0.9rem; opacity: 0.7; }
   .facts, .why { margin: 0 0 0.75rem; font-size: 1rem; line-height: 1.55; }
   .why b { font-family: var(--display); font-size: 0.9rem; }
-  .controls { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
-  button {
-    font: 700 0.95rem var(--display);
-    color: var(--paper);
-    background: var(--ink);
-    border: 0;
-    border-radius: 999px;
-    padding: 0.6rem 1.3rem;
-    cursor: pointer;
-  }
-  button:hover { transform: translateY(-1px); }
-  .pos { font: 600 0.85rem var(--display); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pos { margin: 0.5rem 0 0; font: 700 0.95rem var(--display); color: var(--ink); font-variant-numeric: tabular-nums; }
 </style>
 
 <script>
@@ -78,17 +70,27 @@ const first = cases[0];
       pos.textContent = String(i + 1);
     };
 
-    root.querySelector('[data-next]')!.addEventListener('click', () => {
+    let busy = false;
+    const next = () => {
+      if (busy) return;
       i = (i + 1) % cases.length;
       if (reduce) { fill(cases[i]); return; }
-      card.classList.add('out');
+      busy = true;
+      card.classList.add('flip-out');
       setTimeout(() => {
         fill(cases[i]);
-        card.classList.remove('out');
-        card.classList.add('in');
+        card.classList.remove('flip-out');
+        card.classList.add('flip-in');
         void card.offsetWidth;
-        card.classList.remove('in');
-      }, 260);
+        card.classList.remove('flip-in');
+        card.style.transition = 'transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        setTimeout(() => { card.style.transition = ''; busy = false; }, 340);
+      }, 220);
+    };
+
+    card.addEventListener('click', next);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); next(); }
     });
   }
 </script>

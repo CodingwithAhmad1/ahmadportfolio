@@ -29,7 +29,6 @@ function resample(series: [number, number][]): number[] {
 }
 
 export const meta = { strategy: data.strategy, market: data.market, lastDay };
-export const price = resample(data.price);
 export const variants = Object.fromEntries(
   Object.entries(data.variants).map(([k, v]) => [k, { curve: resample(v.curve), kpis: v.kpis }]),
 );

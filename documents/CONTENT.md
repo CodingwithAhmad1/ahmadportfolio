@@ -69,10 +69,11 @@ On wide screens the note sits in the margin; on phones it drops under the line.
 
 ## Edit the home page copy
 
-- **Statement and bridge sentence:** `src/site.ts`.
-- **Each project row:** `people` (shown as "For …") and `problem` in the project's front matter.
-- **Stats:** three per project in front matter, each with a `source`. Lead with what a visitor cares about (who it helps, what it does, what it caught), never test, commit or line counts.
-- **Invictus features:** the `features` list in `src/content/projects/invictus.mdx`. Each is a short title and one sentence.
+- **Statement:** `src/site.ts`.
+- **Quote:** the `.pause` section in `src/pages/index.astro`. Verbatim only, with its source.
+- **Each project row:** `people` in the project's front matter (shown as "For …" above the title).
+- **Invictus lead line:** `problem` in `invictus.mdx`, shown in large type under the wordmark.
+- **Stats:** one to three per project in front matter, each with a `source`. Lead with what a visitor cares about (who it helps, what it does, what it caught), never test, commit or line counts.
 - **Ticker tape:** the `tape` list in `src/pages/index.astro`. Every item must be a real result or a real feature.
 
 ## Regenerate the Invictus demo
@@ -85,9 +86,9 @@ After the engine changes what it trades, from this repo:
 
 The boot, the demo and the trading floor all update from that one file.
 
-## Update socials
+## Update contact links
 
-They live in `src/site.ts`. A social link with an empty `href` is hidden.
+`contact` in `src/site.ts`: `email` (the footer's Contact pill opens it; until set it points at the footer), `linkedin` (the pill shows but goes nowhere until set) and `github`.
 
 ## Writing checklist
 

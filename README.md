@@ -13,7 +13,7 @@ Then open http://localhost:4321.
 
 ## Where things live
 
-- `src/site.ts`: name, statement, bridge sentence and social links
+- `src/site.ts`: name, statement and contact links (email and LinkedIn still to fill in)
 - `src/content/projects/`: case studies, one MDX file each
 - `src/content/blog/`: blog posts, one Markdown file each
 - `src/styles/global.css`: colours and fonts

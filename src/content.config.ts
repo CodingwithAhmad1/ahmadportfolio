@@ -18,7 +18,7 @@ const projects = defineCollection({
     tagline: z.string(),
     // Who the project is for, shown on its row on the home page.
     helps: z.string(),
-    // The people it's for, shown big on the home page, and the problem they have.
+    // The people it's for, shown above the title on the home page. `problem` is Invictus's lead line.
     people: z.string().optional(),
     problem: z.string().optional(),
     order: z.number(),
@@ -30,10 +30,8 @@ const projects = defineCollection({
       .default({}),
     // The single strongest fact, shown in project lists.
     proof: z.string(),
-    // Three headline numbers for the home page panel, each with where it came from.
-    stats: z.array(z.object({ value: z.string(), label: z.string(), source: z.string() })).length(3),
-    // What it can do, as short titled lines. Shown as modules on the home page.
-    features: z.array(z.object({ title: z.string(), detail: z.string() })).default([]),
+    // Headline numbers for the home page panel (one to three), each with where it came from.
+    stats: z.array(z.object({ value: z.string(), label: z.string(), source: z.string() })).min(1).max(3),
     flagship: z.boolean().default(false),
   }),
 });

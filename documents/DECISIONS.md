@@ -102,5 +102,15 @@ Format: date, decision, why, and what would make you revisit it.
 
 ### 2026-10-03: Stats say what matters
 
-**Why:** "4,442 tests" means nothing to a visitor. Every stat now states an outcome or a capability, with its source. Invictus's features live in front matter so Ahmad can rewrite them.
+**Why:** "4,442 tests" means nothing to a visitor. Every stat now states an outcome or a capability, with its source. The Invictus feature modules and stats were later cut from the home page; the demo carries the argument.
 **Revisit if:** Never. Keep vanity counts off the home page.
+
+### 2026-10-03: Trim to essentials
+
+**Why:** Ahmad cut everything that explained instead of showed: the bridge sentence, project problem lines and status labels, the Student Atlas monitor log, the engine's feature modules and stats, the demo's price strip and "naive" label. The demo now opens on the naive backtest. A verbatim Schwarzman quote fills the pause before the engine.
+**Revisit if:** Visitors can't tell what a project is from its row alone.
+
+### 2026-10-03: One style for external links, contact in the footer
+
+**Why:** Text links like "Open the live site" looked unfinished. `LinkChip` shows where you're going. Contact is a small footer pill beside LinkedIn and GitHub, not a header button.
+**Revisit if:** Contact needs to be easier to find.

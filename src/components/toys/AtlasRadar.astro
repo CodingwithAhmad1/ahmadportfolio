@@ -1,10 +1,7 @@
 ---
 // The 305 government pages Student Atlas cites, on a radar. The sweep replays
-// the twice-daily check; now and then a page "changes" and walks through the
-// alert, review and publish steps the real monitor runs.
+// the twice-daily check. Hover a dot to see which site it is.
 import hosts from '../../data/atlas-sources.json';
-
-const unique = new Set(hosts).size;
 ---
 
 <div class="radar" data-radar>
@@ -13,22 +10,12 @@ const unique = new Set(hosts).size;
     <p class="readout"><span data-count>0</span> / {hosts.length} checked</p>
     <p class="hover" data-hover aria-hidden="true"></p>
   </div>
-  <div class="side">
-    <p class="kicker">Monitor log</p>
-    <ol class="log" data-log aria-live="polite">
-      <li>Waiting for the first sweep.</li>
-    </ol>
-    <p class="fine">
-      Every dot is a real page Student Atlas cites, across {unique} government sites. Hover one to see which. The sweep
-      replays the check that runs every 12 hours.
-    </p>
-  </div>
   <script type="application/json" data-hosts set:html={JSON.stringify(hosts)} />
 </div>
 
 <style>
-  .radar { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 2rem; align-items: center; }
-  .scope { position: relative; aspect-ratio: 1; max-width: 520px; width: 100%; }
+  .radar { display: grid; place-items: center; }
+  .scope { position: relative; aspect-ratio: 1; width: 100%; max-width: min(720px, 80vh); }
   canvas { width: 100%; height: 100%; display: block; }
   .readout {
     position: absolute;
@@ -39,27 +26,10 @@ const unique = new Set(hosts).size;
     font-variant-numeric: tabular-nums;
   }
   .hover { position: absolute; right: 0; bottom: 0; margin: 0; font: 600 0.85rem var(--display); }
-  .kicker { margin: 0 0 0.75rem; font: 700 1rem var(--display); }
-  .log {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    min-height: 11.5rem;
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-  .log :global(li) { padding: 0.45rem 0; border-top: 1px solid var(--line); }
-  .log :global(li:first-child) { font-weight: 500; }
-  .log :global(b) { font-family: var(--display); }
-  .fine { font-size: 0.85rem; color: var(--muted); margin: 1.25rem 0 0; }
-  @media (max-width: 760px) {
-    .radar { grid-template-columns: 1fr; }
-    .scope { margin: 0 auto; }
-  }
 </style>
 
 <script>
-  type Dot = { x: number; y: number; host: string; angle: number; lit: number; changed: number };
+  type Dot = { x: number; y: number; host: string; angle: number; lit: number };
 
   const hash = (s: string, seed = 0) => {
     let h = 2166136261 ^ seed;
@@ -72,7 +42,6 @@ const unique = new Set(hosts).size;
     const canvas = root.querySelector('canvas')!;
     const ctx = canvas.getContext('2d')!;
     const count = root.querySelector<HTMLElement>('[data-count]')!;
-    const log = root.querySelector<HTMLElement>('[data-log]')!;
     const hover = root.querySelector<HTMLElement>('[data-hover]')!;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -80,7 +49,7 @@ const unique = new Set(hosts).size;
     const dots: Dot[] = hosts.map((host, i) => {
       const angle = hash(host) * Math.PI * 2 + (hash(String(i), 7) - 0.5) * 0.18;
       const r = 0.18 + 0.78 * Math.sqrt(hash(host + i, 3));
-      return { host, angle, x: Math.cos(angle) * r, y: Math.sin(angle) * r, lit: 0, changed: 0 };
+      return { host, angle, x: Math.cos(angle) * r, y: Math.sin(angle) * r, lit: 0 };
     });
 
     let size = 0;
@@ -99,38 +68,9 @@ const unique = new Set(hosts).size;
     let sweep = -Math.PI / 2;
     let last = performance.now();
     let checked = 0;
-    let lap = 0;
-    let pending: { dot: Dot; step: number } | null = null;
     let hovered: Dot | null = null;
 
-    const say = (html: string) => {
-      const li = document.createElement('li');
-      li.innerHTML = html;
-      log.prepend(li);
-      while (log.children.length > 5) log.lastElementChild!.remove();
-    };
-
-    const advanceStory = () => {
-      lap++;
-      if (pending) {
-        pending.step++;
-        const h = pending.dot.host;
-        if (pending.step === 1) say(`Alert opened for <b>${h}</b>, linked to every passage citing it.`);
-        else if (pending.step === 2) say(`Reviewed next to the affected text. Edit drafted and type-checked.`);
-        else if (pending.step === 3) { say(`Published. Readers see it in the Activity feed.`); pending.dot.changed = 0; pending = null; }
-        return;
-      }
-      if (lap % 2 === 0) {
-        const dot = dots[Math.floor(Math.random() * dots.length)];
-        dot.changed = 1;
-        pending = { dot, step: 0 };
-        say(`Change detected on <b>${dot.host}</b>.`);
-      } else {
-        say(`Sweep complete. ${hosts.length} pages checked, no substantive changes.`);
-      }
-    };
-
-    const draw = (now: number) => {
+    const draw = () => {
       const c = ink();
       const s = size;
       const R = s / 2 - 6;
@@ -164,13 +104,6 @@ const unique = new Set(hosts).size;
         ctx.globalAlpha = 0.4 + 0.6 * glow;
         const r = 2.2 + 2 * glow + (d === hovered ? 2 : 0);
         ctx.beginPath(); ctx.arc(d.x * R, d.y * R, r, 0, Math.PI * 2); ctx.fill();
-        if (d.changed) {
-          const pulse = (Math.sin(now / 180) + 1) / 2;
-          ctx.globalAlpha = 0.9;
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = c;
-          ctx.beginPath(); ctx.arc(d.x * R, d.y * R, 7 + pulse * 6, 0, Math.PI * 2); ctx.stroke();
-        }
       }
       ctx.restore();
     };
@@ -189,9 +122,9 @@ const unique = new Set(hosts).size;
         if (passed) { d.lit = 1; checked++; }
         else d.lit = Math.max(0, d.lit - dt / 2200);
       }
-      if (checked >= dots.length) { checked = 0; advanceStory(); }
+      if (checked >= dots.length) checked = 0;
       count.textContent = String(checked);
-      draw(now);
+      draw();
       if (running) frame = requestAnimationFrame(tick);
     };
 
@@ -205,7 +138,7 @@ const unique = new Set(hosts).size;
 
     // Only animate while visible, so a closed panel costs nothing.
     new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop())).observe(canvas);
-    draw(performance.now());
+    draw();
     if (reduce) { count.textContent = String(hosts.length); }
 
     canvas.addEventListener('pointermove', (e) => {
@@ -221,7 +154,7 @@ const unique = new Set(hosts).size;
       }
       hovered = best;
       hover.textContent = best ? best.host : '';
-      if (reduce) draw(performance.now());
+      if (reduce) draw();
     });
     canvas.addEventListener('pointerleave', () => { hovered = null; hover.textContent = ''; });
   }

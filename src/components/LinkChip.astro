@@ -1,0 +1,61 @@
+---
+// The one style for links that leave this site: a thin pill showing the address
+// you're going to, with an arrow that fills in on hover. It takes its colours from
+// the tokens around it, so it reads on the black stage and inside every project's
+// colour. The whole pill is one link, and the address stays on one line.
+interface Props {
+  href: string;
+  kind: 'live' | 'source';
+}
+const { href, kind } = Astro.props;
+const url = new URL(href);
+const parts = url.pathname.split('/').filter(Boolean);
+// github.com/user/repo shows as github.com/…/repo; anything else shows its host.
+const address = url.host === 'github.com' && parts.length > 1 ? `${url.host}/…/${parts.at(-1)}` : url.host;
+const label = kind === 'live' ? 'Live site:' : 'Source code:';
+---
+
+<a class="chip" href={href} target="_blank" rel="noopener">
+  <span class="visually-hidden">{label}</span>
+  <span class="addr">{address}</span>
+  <span class="go" aria-hidden="true">
+    <svg viewBox="0 0 12 12"><path d="M3 9 9 3M4 3h5v5" /></svg>
+  </span>
+  <span class="visually-hidden">(opens in a new tab)</span>
+</a>
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: stretch;
+    max-width: 100%;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    color: var(--ink);
+    text-decoration: none;
+    font: 500 0.8rem var(--code);
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease;
+  }
+  .chip:hover, .chip:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--ink) 60%, transparent);
+  }
+  .addr {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem 0.35rem 1rem;
+    white-space: nowrap;
+  }
+  .go {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 2.1rem;
+    border-left: 1.5px solid var(--ink);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .go svg { width: 0.7rem; height: 0.7rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .chip:hover .go, .chip:focus-visible .go { background: var(--ink); color: var(--paper); }
+  .chip:hover .go svg, .chip:focus-visible .go svg { transform: translate(2px, -2px); }
+</style>

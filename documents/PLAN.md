@@ -59,7 +59,7 @@ The single backlog of things to come back to. Tick them off here.
 
 ### Before launch
 
-- [ ] Add a public email, LinkedIn and X to `src/site.ts`. Empty links are hidden, so only GitHub shows today
+- [ ] **Set `contact.email` and `contact.linkedin` in `src/site.ts`.** The LinkedIn pill is a placeholder and Contact points at the footer until then
 - [ ] Buy a domain, deploy (see [DEPLOYMENT.md](DEPLOYMENT.md)) and set `site` in `astro.config.mjs`
 - [ ] Replace the "Hello, world" post with a real first post
 - [ ] Rewrite each case study's first paragraph in your own words. The structure and facts are right; the voice should be yours
@@ -100,6 +100,8 @@ Every number on the site has a note saying where it came from. When a number cha
 - [ ] Lighthouse pass and a screen reader check of the demo
 - [ ] Test the boot and trading floor on a low-end phone; lower the candle count if it stutters
 - [ ] Upgrade to Astro 7 once Node is 22.12 or newer
+- [ ] Decide whether the nav's "Writing" should match the "Recent Articles" heading
+- [ ] The dev server sometimes serves stale component CSS after edits; restart it if a change doesn't show
 
 ## Ideas parking lot
 
@@ -113,4 +115,4 @@ Things that might be fun later. Not commitments.
 
 ## Current focus
 
-v4 (boot, trading floor, Trading Floor palette) is pushed. Next: the "Before launch" list under Later, then deploy. Update this line when the focus changes.
+v4 is pushed and trimmed (no hero intro, board, bridge, loop, engine modules or stats). Next: contact details, then the "Before launch" list under Later, then deploy. Update this line when the focus changes.

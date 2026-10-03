@@ -3,9 +3,9 @@ import Socials from './Socials.astro';
 import { site } from '../site';
 ---
 
-<footer class="wrap">
+<footer class="wrap" id="contact">
   <Socials />
-  <p class="muted">© {new Date().getFullYear()} {site.fullName}. Every number on this site comes with its source.</p>
+  <p class="muted">© {new Date().getFullYear()} {site.fullName}</p>
 </footer>
 
 <style>
@@ -13,7 +13,7 @@ import { site } from '../site';
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     gap: 1rem;
     margin-top: 6rem;
     padding-top: 1.5rem;

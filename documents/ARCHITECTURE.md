@@ -2,7 +2,7 @@
 
 ## Stack
 
-- **Astro 5**, static output, with MDX for case studies. No client framework. JavaScript runs the boot, the letter effect, the bridge, the trading floor and the five demos. Everything reads fine without it, and the accordion still opens.
+- **Astro 5**, static output, with MDX for case studies. No client framework. JavaScript runs the boot, the letter effect, the trading floor and the five demos. Everything reads fine without it, and the accordion still opens.
 - **Plain CSS** with custom properties. Global styles in `src/styles/global.css`, everything else scoped in components.
 - **Google Fonts**: Syne (display), Newsreader (body) and JetBrains Mono (data and labels).
 - **Node 20+**. Upgrading to Astro 7 needs Node 22.12+.
@@ -11,7 +11,7 @@
 
 ```
 src/
-  site.ts                   Name, statement, bridge sentence and social links
+  site.ts                   Name, statement, and `contact` (email, LinkedIn, GitHub)
   content.config.ts         Schemas for the blog and projects collections
   content/blog/             Posts, one Markdown file each
   content/projects/         Case studies, one MDX file each (order, status, proof line in front matter)
@@ -28,8 +28,9 @@ src/
   layouts/Base.astro        HTML shell, meta tags, fonts, header and footer, and a `head` slot
   components/
     Header.astro            Nav, plus the name mark on every page except home
-    Footer.astro            Socials and copyright
-    Socials.astro           Social link list
+    Footer.astro            Socials and copyright (the footer is #contact)
+    Socials.astro           LinkedIn, GitHub and Contact pills
+    LinkChip.astro          The one style for external links (live site, source)
     Flex.astro              Text whose letters respond to the pointer
     Boot.astro              Home page intro: replays the demo, then closes onto the hero
     TradingFloor.astro      Canvas behind the engine: candles, order book, fill tickets
@@ -42,7 +43,7 @@ src/
     Flow.astro              Pipeline diagram used in case studies
     Knowability.astro       The two-bar diagram on the Invictus page
   pages/
-    index.astro             Home: boot, hero, project rows, bridge, Invictus engine
+    index.astro             Home: boot, hero, project rows, quote, Invictus engine, Recent Articles
     work/[slug].astro       Case study template
     blog/index.astro        All posts
     blog/[...slug].astro    Single post
@@ -55,7 +56,7 @@ documents/                  These notes
 
 ## How pages get data
 
-- **Projects** come from `getProjects()`. The one with `flagship: true` (Invictus) gets the engine section, including its `features` modules; the rest are rows in the accordion, showing `people` and `problem`. Each row is a native `<details>` element, so it opens without JavaScript, and only one opens at a time. Its demo comes from the `toys` map in `src/pages/index.astro`.
+- **Projects** come from `getProjects()`. The one with `flagship: true` (Invictus) gets the engine section; the rest are rows in the accordion, showing `people` and the title. Each row is a native `<details>` element, so it opens without JavaScript, and only one opens at a time. Its demo comes from the `toys` map in `src/pages/index.astro`.
 - `/work` redirects to `/#work`. Case study pages stay at `/work/[slug]` for anyone who wants depth.
 - **Posts** come from `getCollection('blog')`. Posts with `draft: true` are filtered out everywhere.
 - A URL is the filename: `invictus.mdx` becomes `/work/invictus`, `hello-world.md` becomes `/blog/hello-world`.
@@ -63,7 +64,7 @@ documents/                  These notes
 ## The backtest demo
 
 1. `scripts/export-invictus-demo.py` runs the real Invictus engine (from `../backtestengine`) on a seeded synthetic market, 18 times: 2 fill timings × 3 commissions × 3 slippages. It writes curves and KPIs to `src/data/invictus-demo.json`. Invictus's own data folders are pointed at a temp directory, so nothing in that repo changes. Same inputs give byte-identical output.
-2. At build time `src/lib/demo.ts` resamples every curve onto one 240-point grid and the page renders the default state as plain SVG, so it works with JavaScript off.
+2. At build time `src/lib/demo.ts` resamples every curve onto one 240-point grid and the page renders the naive state as plain SVG (the demo opens on it), so it works with JavaScript off.
 3. The shaped arrays (about 34 KB) are embedded in the page. The browser script swaps and animates curves when a control changes. The raw JSON never ships.
 4. The boot reuses the naive and default curves. The trading floor buckets the raw price series into candles at build time. So every price on the home page comes from the same synthetic market.
 

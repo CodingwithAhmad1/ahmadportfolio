@@ -5,6 +5,7 @@ import Flex from '../components/Flex.astro';
 import Boot from '../components/Boot.astro';
 import TradingFloor from '../components/TradingFloor.astro';
 import BacktestDemo from '../components/BacktestDemo.astro';
+import LinkChip from '../components/LinkChip.astro';
 import AtlasRadar from '../components/toys/AtlasRadar.astro';
 import ReportDesk from '../components/toys/ReportDesk.astro';
 import CaseDeck from '../components/toys/CaseDeck.astro';
@@ -53,8 +54,6 @@ const tapeRows = Array.from({ length: 12 }, (_, i) => ({
   shift: (i * 137) % 400,
   amber: i % 3 === 1,
 }));
-
-const statusOf = (s: string) => (s === 'Private' ? 'In use' : s);
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -106,8 +105,6 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
               <summary class="wrap row">
                 <span class="who">For {p.data.people}</span>
                 <span class="name"><Flex text={p.data.title} /></span>
-                <span class="problem">{p.data.problem}</span>
-                <span class="status">{statusOf(p.data.status)}</span>
                 <span class="plus" aria-hidden="true"></span>
               </summary>
               <div class="wrap panel">
@@ -122,11 +119,12 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
                       </div>
                     ))}
                   </dl>
-                  <p class="links">
-                    <a href={`/work/${p.id}`}>How it works</a>
-                    {p.data.links.live && <a href={p.data.links.live}>Open the live site</a>}
-                    {p.data.links.repo && <a href={p.data.links.repo}>Read the source</a>}
-                  </p>
+                  {(p.data.links.live || p.data.links.repo) && (
+                    <p class="chips">
+                      {p.data.links.live && <LinkChip href={p.data.links.live} kind="live" />}
+                      {p.data.links.repo && <LinkChip href={p.data.links.repo} kind="source" />}
+                    </p>
+                  )}
                 </div>
                 <div class="toy">{Toy && <Toy />}</div>
               </div>
@@ -136,16 +134,19 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
       </div>
     </section>
 
-    <!-- Act 3: why the engine exists -->
-    <section class="bridge" data-bridge aria-label="Why the engine exists">
-      <div class="bridge-pin wrap">
-        <p class="bridge-text">
-          {site.bridge.split(' ').map((w) => <span>{w} </span>)}
-        </p>
-      </div>
+    <!-- A pause between the projects and the engine. Quote checked against two
+         printings of the 25 rules from What It Takes (2019); keep it verbatim. -->
+    <section class="pause wrap" aria-labelledby="pause-title">
+      <h2 id="pause-title" class="pause-title">Next, something bigger.</h2>
+      <figure class="quote">
+        <blockquote>
+          <p>“It’s as easy to do something big as it is to do something small, so reach for a fantasy worthy of your pursuit, with rewards commensurate to your effort.”</p>
+        </blockquote>
+        <figcaption>Stephen A. Schwarzman, <cite>What It Takes</cite></figcaption>
+      </figure>
     </section>
 
-    <!-- Act 4: the engine -->
+    <!-- The engine -->
     <section id="engine" class="engine" data-world={engine.id} aria-labelledby="engine-title">
       <TradingFloor />
       <div class="tape" aria-hidden="true">
@@ -199,27 +200,6 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
           <BacktestDemo id="home-demo" />
         </div>
 
-        <h3 class="modules-title">What it does that most backtesters don't</h3>
-        <ul class="modules">
-          {engine.data.features.map((f) => (
-            <li>
-              <span class="mod-state" aria-hidden="true">● on</span>
-              <h4>{f.title}</h4>
-              <p>{f.detail}</p>
-            </li>
-          ))}
-        </ul>
-
-        <dl class="stats engine-stats">
-          {engine.data.stats.map((s) => (
-            <div>
-              <dt>{s.label}</dt>
-              <dd>{s.value}</dd>
-              <dd class="src">{s.source}</dd>
-            </div>
-          ))}
-        </dl>
-        <p class="links"><a href={`/work/${engine.id}`}>How Invictus works</a></p>
       </div>
     </section>
 
@@ -227,7 +207,7 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
 
   {posts.length > 0 && (
     <section class="wrap writing">
-      <h2>Writing</h2>
+      <h2>Recent Articles</h2>
       <ul class="rows">
         {posts.map((post) => (
           <li>
@@ -303,8 +283,8 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
   .row {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 19rem) auto;
-    grid-template-areas: 'who who who' 'name problem plus' 'name status plus';
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'who plus' 'name plus';
     align-items: center;
     gap: 0.15rem 2rem;
     padding-top: clamp(1.1rem, 2.4vw, 1.75rem);
@@ -332,8 +312,6 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
   }
   .world:not([open]) .row:hover .name, .world:not([open]) .row:focus-visible .name { color: var(--world); }
   .work:has(.row:hover) .world:not(:has(.row:hover)):not([open]) .name { opacity: 0.3; }
-  .problem { grid-area: problem; align-self: end; font-size: 1rem; line-height: 1.35; }
-  .status { grid-area: status; align-self: start; font: 500 0.75rem var(--code); letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.6; margin-top: 0.35rem; }
   .plus { grid-area: plus; position: relative; width: 1.75rem; height: 1.75rem; }
   .plus::before, .plus::after {
     content: '';
@@ -362,26 +340,15 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
   .stats dt { grid-column: 2; grid-row: 1; font-size: 1rem; line-height: 1.3; }
   .stats dd { margin: 0; grid-column: 1; grid-row: 1 / span 2; font: 800 clamp(2.4rem, 4.5vw, 3.6rem) / 1 var(--display); letter-spacing: -0.03em; min-width: 2.2ch; white-space: nowrap; }
   .stats dd.src { grid-column: 2; grid-row: 2; font: 400 0.75rem / 1.3 var(--code); letter-spacing: 0; opacity: 0.65; min-width: 0; white-space: normal; }
-  .links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 2rem 0 0; font: 700 1rem var(--display); }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 2rem 0 0; }
 
-  /* Act 3: the words light up as you scroll, and the stage darkens into the floor. */
-  .bridge { height: 220vh; background: linear-gradient(var(--paper) 30%, #060607); }
-  .bridge-pin {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-  .bridge-text {
-    margin: 0;
-    max-width: 22ch;
-    font: 600 clamp(2rem, 5vw, 4.5rem) / 1.08 var(--display);
-    letter-spacing: -0.03em;
-  }
-  .bridge-text span { color: rgba(237, 235, 230, 0.14); transition: color 0.25s ease; }
-  .bridge-text span.on { color: var(--ink); }
-  .bridge-text span.on:nth-last-child(-n + 8) { color: var(--signal); }
+  .pause { padding-top: clamp(7rem, 22vh, 14rem); padding-bottom: clamp(7rem, 22vh, 14rem); }
+  .pause-title { margin: 0; font: 500 0.8rem var(--code); letter-spacing: 0.12em; text-transform: uppercase; color: var(--signal); }
+  .quote { margin: 1.5rem 0 0; }
+  .quote blockquote { margin: 0; }
+  .quote p { margin: 0; max-width: 24ch; font: 600 clamp(2rem, 4.6vw, 4rem) / 1.08 var(--display); letter-spacing: -0.03em; text-indent: -0.4em; }
+  .quote figcaption { margin-top: 1.75rem; font-size: 1.05rem; color: var(--muted); }
+  .quote cite { font-style: italic; }
 
   /* Act 4: the trading floor. */
   .engine {
@@ -441,72 +408,17 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
   .desk-intro .up { color: var(--gain); font-weight: 600; }
   .desk :global(.demo) { padding: 1.25rem clamp(1rem, 2.5vw, 2rem) clamp(1rem, 2.5vw, 2rem); }
 
-  .modules-title { margin: clamp(3.5rem, 8vw, 6rem) 0 1.25rem; font-size: clamp(1.5rem, 2.6vw, 2.2rem); font-weight: 600; letter-spacing: -0.02em; }
-  .modules {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--line);
-    border: 1px solid var(--line);
-  }
-  .modules li {
-    position: relative;
-    padding: 1.5rem 1.5rem 1.75rem;
-    background: rgba(9, 9, 11, 0.86);
-    backdrop-filter: blur(6px);
-    transition: background-color 0.25s ease;
-  }
-  .modules li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 2px;
-    background: var(--signal);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.35s cubic-bezier(0.3, 0.7, 0.2, 1);
-  }
-  .modules li:hover { background: rgba(20, 16, 6, 0.92); }
-  .modules li:hover::before { transform: scaleX(1); }
-  .mod-state { font: 500 0.7rem var(--code); letter-spacing: 0.08em; text-transform: uppercase; color: var(--gain); }
-  .modules h4 { margin: 0.6rem 0 0.5rem; font: 700 1.2rem / 1.2 var(--display); }
-  .modules p { margin: 0; font-size: 1rem; line-height: 1.5; color: var(--muted); }
-
-  .engine-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1px; gap: 1px; background: var(--line); border: 1px solid var(--line); border-top: 0; }
-  .engine-stats div { display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem; background: rgba(9, 9, 11, 0.92); }
-  .engine-stats dd { order: -1; color: var(--signal); }
-  .engine-stats dd.src { order: 1; color: var(--muted); }
-  .engine .links { margin-top: 2.5rem; }
-
   .writing { margin-top: clamp(4rem, 10vh, 7rem); }
 
-  @media (max-width: 1000px) {
-    .modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
   @media (max-width: 900px) {
     .panel, .thesis { grid-template-columns: 1fr; }
-    .engine-stats { grid-template-columns: 1fr; }
   }
   @media (max-width: 700px) {
-    .row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'who plus' 'name plus' 'problem problem' 'status status'; }
-    .problem { margin-top: 0.5rem; }
-    .modules { grid-template-columns: 1fr; }
     .desk-bar span:last-child { display: none; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .bridge { height: auto; }
-    .bridge-pin { position: static; height: auto; padding-top: 6rem; padding-bottom: 6rem; }
-    .bridge-text span { color: var(--ink); }
   }
 </style>
 
 <script>
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const rows = [...document.querySelectorAll<HTMLDetailsElement>('details.world')];
 
   // Opening a row brings it to the top of the screen, once the previous one has closed.
@@ -531,27 +443,4 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
       d.open = true;
     });
   }
-
-  // The bridge lights up word by word.
-  const bridge = document.querySelector<HTMLElement>('[data-bridge]')!;
-  const words = [...bridge.querySelectorAll<HTMLElement>('.bridge-text span')];
-  const lightBridge = () => {
-    const r = bridge.getBoundingClientRect();
-    const p = Math.min(1, Math.max(0, -r.top / (r.height - window.innerHeight) * 1.25));
-    words.forEach((w, i) => w.classList.toggle('on', reduce || i / words.length < p));
-  };
-  window.addEventListener('scroll', lightBridge, { passive: true });
-  lightBridge();
-
-  // Fit the wordmark's viewBox to the real text once its font has loaded.
-  const wm = document.querySelector<SVGSVGElement>('[data-wordmark]');
-  const fitWordmark = () => {
-    const t = wm?.querySelector<SVGTextElement>('.wm-outline');
-    if (!wm || !t) return;
-    const bb = t.getBBox();
-    const pad = 4;
-    wm.setAttribute('viewBox', `${bb.x - pad} ${bb.y - pad} ${bb.width + pad * 2} ${bb.height + pad * 2}`);
-  };
-  document.fonts?.ready.then(fitWordmark);
-  fitWordmark();
 </script>

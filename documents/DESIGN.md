@@ -4,7 +4,7 @@
 
 **People first, then the engine for what comes next.**
 
-The home page is a short story. A boot sequence replays the real Invictus demo: the naive backtest climbs to +18%, real costs cut it to +2%, and the screen closes onto a line under the hero statement. Then the four projects, each a full-width row that says who it's for and the problem it solves, and opens into its colour and a working demo. A **bridge** lights up word by word and darkens the stage. The **engine** is a trading floor: ticker tape, the INVICTUS wordmark with the tape running through its letters, the playable backtest, feature modules and three stats.
+The home page is a short story. A boot sequence replays the real Invictus demo: the naive backtest climbs to +18%, real costs cut it to +2%, and the screen closes onto a line under the hero statement. Then the four projects, each a full-width row that says who it's for and opens into its colour and a working demo. A quiet black pause carries one verbatim quote (Schwarzman, *What It Takes*). The **engine** is a trading floor: ticker tape, the INVICTUS wordmark with the tape running through its letters, and the playable backtest, which opens on the naive settings so the visitor adds the costs themselves. Then Recent Articles and a footer of small pills: LinkedIn, GitHub, Contact.
 
 Invictus funds Ahmad's **future** ambitions and interests, not the current projects. Never draw money flowing from it into the four projects.
 
@@ -33,7 +33,7 @@ Worlds are set in `src/styles/global.css` under `[data-world='…']`.
 
 ## Copy
 
-Every number must tell a visitor something they care about: who it helps, what it does, what it caught. No test, commit or line counts on the home page. Invictus features live in the `features` list in its frontmatter and are meant to be edited.
+Every number must tell a visitor something they care about: who it helps, what it does, what it caught. No test, commit or line counts on the home page.
 
 ## Type
 
@@ -50,15 +50,23 @@ Every number must tell a visitor something they care about: who it helps, what i
 
 ## Evidence notes
 
-A small cobalt number after a claim, and the source in the right margin, like a footnote you never have to scroll to. On phones the note drops under its line with a thin rule. Use them for numbers and technical claims, not for every sentence.
+A small number after a claim, and the source in the right margin, like a footnote you never have to scroll to. On phones the note drops under its line with a thin rule. Use them for numbers and technical claims, not for every sentence.
 
 ## Motion
 
 - **Boot** (home page only, 4s): first arrival only, never when coming back from another page on the site, following a link to a project, or with reduced motion. Skippable by any key, click or scroll. `?boot` forces it. Armed by an inline script in `<head>`, with a 7s failsafe.
-- **Bridge** words light up with scroll.
+- The JurisLearning case card flips to the next case on click.
 - **The engine is the only place things move on their own**: candles at three depths, order-book depth, fill tickets, ticker tape. The canvas only runs on screen and draws one still frame with reduced motion. All prices come from the demo's synthetic market. The calm of the mission and the hum of the engine is deliberate.
 - Letters thicken as the pointer approaches. After the boot, the statement rises into place.
 - Respect `prefers-reduced-motion` everywhere.
+
+## Links that leave the site
+
+One style everywhere: `LinkChip.astro`, a thin outlined pill showing the address on one line and an arrow box that fills on hover. The whole pill is the link. Footer pills (`Socials.astro`) are smaller and match each other.
+
+## Quotes
+
+Only verbatim quotes, checked against at least two sources, with the source named. Never paraphrase into quotation marks.
 
 ## Avoid
 
