@@ -4,13 +4,13 @@
 
 **People first, then the engine for what comes next.**
 
-The home page is a short story. A boot sequence replays the real Invictus demo: the naive backtest climbs to +18%, real costs cut it to +2%, and the screen closes onto a line under the hero statement. Then the four projects, each a full-width row that says who it's for and opens into its colour and a working demo. A quiet black pause carries one verbatim quote (Schwarzman, *What It Takes*). The **engine** is a trading floor: ticker tape, the INVICTUS wordmark with the tape running through its letters, and the playable backtest, which opens on the naive settings so the visitor adds the costs themselves. Then Recent Articles and a footer of small pills: LinkedIn, GitHub, Contact.
+The home page is a short story. A boot sequence replays the real Miran demo: the naive backtest climbs to +18%, real costs cut it to +2%, and the screen closes onto a line under the hero statement. Then the four projects, each a full-width row that says who it's for and opens into its colour and a working demo. A quiet black pause carries one verbatim quote (Schwarzman, *What It Takes*). The **engine** is a trading floor: ticker tape, the MIRAN wordmark with the tape running through its letters, and the playable backtest, which opens on the naive settings so the visitor adds the costs themselves. Then Recent Articles and a footer of small pills: LinkedIn, GitHub, Contact.
 
-Invictus funds Ahmad's **future** ambitions and interests, not the current projects. Never draw money flowing from it into the four projects.
+Miran funds Ahmad's **future** ambitions and interests, not the current projects. Never draw money flowing from it into the four projects.
 
 ## Colour: "Trading Floor"
 
-Warm near-black stage, warm white for people, **amber for money**. Amber only appears on Invictus, the boot and live readouts, so the colour itself carries the story.
+Warm near-black stage, warm white for people, **amber for money**. Amber only appears on Miran, the boot and live readouts, so the colour itself carries the story.
 
 | Token | Value |
 | --- | --- |
@@ -27,7 +27,7 @@ Warm near-black stage, warm white for people, **amber for money**. Amber only ap
 | ReportIQ | `#9b8cff` violet |
 | JurisLearning | `#e5486a` rose |
 | Speak Up | `#5eead4` teal |
-| Invictus | `#ffb000` amber |
+| Miran | `#ffb000` amber |
 
 Worlds are set in `src/styles/global.css` under `[data-world='…']`.
 
@@ -37,7 +37,7 @@ Every number must tell a visitor something they care about: who it helps, what i
 
 ## Type
 
-- **Syne** (variable, 400 to 800) for headings, nav, titles and labels. At 800 its glyphs are heavy slabs; the INVICTUS wordmark is an SVG (tape clipped to the letters, masked outline) in `index.astro`.
+- **Syne** (variable, 400 to 800) for headings, nav, titles and labels. At 800 its glyphs are heavy slabs; the MIRAN wordmark is an SVG (tape clipped to the letters, masked outline) in `index.astro`.
 - **JetBrains Mono** for data, labels, the tape and the boot.
 - **Newsreader** (serif) for body text and intros.
 - Body size is 19px, line height 1.6 (1.7 in posts). Keep text columns under about 68 characters.

@@ -1,15 +1,15 @@
-"""Regenerate src/data/invictus-demo.json from the real Invictus engine.
+"""Regenerate src/data/miran-demo.json from the real Miran engine.
 
 Generates a seeded synthetic market, runs one strategy under 18 combinations of
 fill timing, commission and slippage, and writes the equity curves and KPIs the
-home page demo draws. Nothing is written inside the Invictus repo: its data and
+home page demo draws. Nothing is written inside the Miran repo: its data and
 output folders are pointed at a temporary directory.
 
-Run from this repo's root, with Invictus's own Python:
+Run from this repo's root, with Miran's own Python:
 
-    ../backtestengine/.venv/bin/python scripts/export-invictus-demo.py
+    ../backtestengine/.venv/bin/python scripts/export-miran-demo.py
 
-Set INVICTUS_DIR if the engine lives somewhere other than ../backtestengine.
+Set MIRAN_DIR if the engine lives somewhere other than ../backtestengine.
 """
 import itertools
 import json
@@ -20,8 +20,8 @@ import tempfile
 import warnings
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent.parent / "src" / "data" / "invictus-demo.json"
-ENGINE = Path(os.environ.get("INVICTUS_DIR", Path(__file__).resolve().parents[2] / "backtestengine"))
+OUT = Path(__file__).resolve().parent.parent / "src" / "data" / "miran-demo.json"
+ENGINE = Path(os.environ.get("MIRAN_DIR", Path(__file__).resolve().parents[2] / "backtestengine"))
 
 STRATEGY = "macd_atr_trend"
 MARKET = dict(calendar="fx_24_5", start="2019-01-01", end="2025-01-01", bar_seconds=4 * 3600,
@@ -30,7 +30,7 @@ FILLS = ["same_bar_close", "next_bar_open"]
 FEES = [0, 0.5, 1.0]        # bps per side; keys must match the demo's radio values
 SLIPPAGES = [0, 0.75, 1.5]  # bps per side
 
-tmp = Path(tempfile.mkdtemp(prefix="invictus-demo-"))
+tmp = Path(tempfile.mkdtemp(prefix="miran-demo-"))
 os.environ["BACKTEST_DATA_ROOT"] = str(tmp / "data")
 os.environ["BACKTEST_OUTPUT_DIR"] = str(tmp / "out")
 sys.path.insert(0, str(ENGINE))

@@ -9,7 +9,7 @@ Run from this repo's root with any Python 3:
     python3 scripts/refresh-demo-data.py
 
 Set PROJECTS_DIR if the repos don't live next to this one.
-The Invictus demo has its own script: export-invictus-demo.py.
+The Miran demo has its own script: export-miran-demo.py.
 """
 import ast
 import json

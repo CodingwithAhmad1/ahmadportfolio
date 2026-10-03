@@ -8,7 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "demo:export": "../backtestengine/.venv/bin/python scripts/export-invictus-demo.py"
+    "demo:export": "../backtestengine/.venv/bin/python scripts/export-miran-demo.py"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.14",

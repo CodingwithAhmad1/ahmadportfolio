@@ -18,7 +18,7 @@ const projects = defineCollection({
     tagline: z.string(),
     // Who the project is for, shown on its row on the home page.
     helps: z.string(),
-    // The people it's for, shown above the title on the home page. `problem` is Invictus's lead line.
+    // The people it's for, shown above the title on the home page. `problem` is Miran's lead line.
     people: z.string().optional(),
     problem: z.string().optional(),
     order: z.number(),

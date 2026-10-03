@@ -68,9 +68,9 @@ The single backlog of things to come back to. Tick them off here.
 
 - [ ] **JurisLearning**: the feed, a case page and the LNAT essay bank, once it's live on Render. Then add the live link to `src/content/projects/jurislearning.mdx` and change its status to `Live`
 - [ ] **Speak Up**: run it with a fresh database of made-up students. Never screenshot the real `instance/parliament_app.db`, which holds real student accounts
-- [ ] **Invictus**: the equity vs benchmark chart, KPI cards, robustness and evaluation views. Run it with `BACKTEST_DATA_ROOT` pointed at a temporary folder so the screenshots use synthetic data
+- [ ] **Miran**: the equity vs benchmark chart, KPI cards, robustness and evaluation views. Run it with `BACKTEST_DATA_ROOT` pointed at a temporary folder so the screenshots use synthetic data
 - [ ] **Student Atlas**: the Activity feed, which shows the monitor at work, is a better shot than the home page
-- [ ] A terminal capture of the Invictus test run, for the proof section
+- [ ] A terminal capture of the Miran test run, for the proof section
 
 ### Demos
 
@@ -82,8 +82,8 @@ The single backlog of things to come back to. Tick them off here.
 
 Every number on the site has a note saying where it came from. When a number changes, update the number and its note together.
 
-- [ ] Check the stat labels sourced to "the case study" are still true (Speak Up, JurisLearning, ReportIQ, Invictus)
-- [ ] If Invictus's engine changes what it trades, re-run `scripts/export-invictus-demo.py` so the demo matches
+- [ ] Check the stat labels sourced to "the case study" are still true (Speak Up, JurisLearning, ReportIQ, Miran)
+- [ ] If Miran's engine changes what it trades, re-run `scripts/export-miran-demo.py` so the demo matches
 - [ ] Student Atlas: re-count sources and citations when content grows
 
 ### ReportIQ repository (public)
@@ -95,7 +95,7 @@ Every number on the site has a note saying where it came from. When a number cha
 ### Nice to have
 
 - [ ] RSS feed and sitemap
-- [ ] Open Graph share images per page, ideally the demo chart for Invictus
+- [ ] Open Graph share images per page, ideally the demo chart for Miran
 - [ ] Load the fonts from the site itself instead of Google Fonts, for speed and privacy
 - [ ] Lighthouse pass and a screen reader check of the demo
 - [ ] Test the boot and trading floor on a low-end phone; lower the candle count if it stutters

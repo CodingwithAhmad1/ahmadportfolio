@@ -71,7 +71,7 @@ const payload = JSON.stringify({ variants, range });
 
   <div class="chart">
     <div class="equity">
-      <svg viewBox="0 0 1000 100" preserveAspectRatio="none" role="img" aria-labelledby={`${id}-desc`}>
+      <svg viewBox="0 0 1000 100" preserveAspectRatio="none" role="img" aria-label={`Equity curve: naive backtest (dashed) against the same strategy under chosen costs (solid)`}>
         {yTicks.map((v) => <line class="grid" x1="0" x2="1000" y1={yOf(v, range)} y2={yOf(v, range)} />)}
         <path class="gap" data-gap d={gap(naive.curve, current.curve, range.min, range.max)} />
         <path class="naive" d={path(naive.curve, range.min, range.max)} />
@@ -95,13 +95,6 @@ const payload = JSON.stringify({ variants, range });
     <div><dt>Max drawdown</dt><dd data-k="maxdd">{(k.maxdd * 100).toFixed(1)}%</dd></div>
     <div><dt>Lost to reality</dt><dd data-k="lost">{((naive.kpis.return - k.return) * 100).toFixed(1)} pts</dd></div>
   </dl>
-
-  <figcaption id={`${id}-desc`}>
-    Strategy <code>{meta.strategy}</code> on a seeded synthetic market ({meta.market.profile}, seed {meta.market.seed}),
-    {meta.market.bars.toLocaleString('en-GB')} four-hour bars, 2019 to 2024. The dashed line is the naive backtest: fills at the
-    signal bar's close, no costs. The solid line is the same strategy under the assumptions you choose. Every number
-    was produced by Invictus and exported unchanged.
-  </figcaption>
 
   <script type="application/json" data-payload set:html={payload} />
 </figure>
@@ -165,8 +158,6 @@ const payload = JSON.stringify({ variants, range });
   dd { margin: 0.1rem 0 0; font: 700 clamp(1.4rem, 3vw, 2rem) / 1.1 var(--display); font-variant-numeric: tabular-nums; }
   dd.up { color: var(--gain); }
   dd.down { color: var(--loss); }
-  figcaption { font-size: 0.9rem; color: var(--muted); max-width: var(--measure); }
-  figcaption code { font-size: 0.85em; }
 
   @media (max-width: 760px) {
     .kpis { grid-template-columns: repeat(2, 1fr); }

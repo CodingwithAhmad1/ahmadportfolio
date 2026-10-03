@@ -3,7 +3,7 @@
 // book breathing at the edge and fill tickets floating up. Every price comes from
 // the same synthetic market the demo runs on, so nothing on screen is invented.
 // It only runs while on screen, and draws a single still frame for reduced motion.
-import raw from '../data/invictus-demo.json';
+import raw from '../data/miran-demo.json';
 
 const series = (raw as unknown as { price: [number, number][] }).price.map(([, p]) => p);
 const SIZE = 4;

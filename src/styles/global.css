@@ -31,7 +31,7 @@
 [data-world='reportiq'] { --world: #9b8cff; --on: #0b0b0c; }
 [data-world='jurislearning'] { --world: #e5486a; --on: #0b0b0c; }
 [data-world='speak-up'] { --world: #5eead4; --on: #0b0b0c; }
-[data-world='invictus'] { --world: #ffb000; --on: #0b0b0c; }
+[data-world='miran'] { --world: #ffb000; --on: #0b0b0c; }
 
 /* Inside an open world, every token follows its colours. */
 .in-world {

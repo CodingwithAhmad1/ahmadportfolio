@@ -1,6 +1,6 @@
-// Shapes the exported Invictus results for the demo chart, at build time.
+// Shapes the exported Miran results for the demo chart, at build time.
 // The browser only gets the shaped arrays, never this file or the raw JSON.
-import raw from '../data/invictus-demo.json';
+import raw from '../data/miran-demo.json';
 export { path, gap, pct, yOf, key, NAIVE, DEFAULT } from './chart';
 
 export const POINTS = 240;

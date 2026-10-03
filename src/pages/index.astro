@@ -31,20 +31,19 @@ const real = variants[DEFAULT].kpis;
 
 // The tape that runs along the top of the engine. Every item is a real result or a real feature.
 const tape = [
-  `${meta.strategy}`,
-  `naive ${pct(naive.return)}`,
-  `after real costs ${pct(real.return)}`,
-  `sharpe ${naive.sharpe.toFixed(2)} → ${real.sharpe.toFixed(2)}`,
-  'fills at next bar open',
-  'fee 0.5bp',
-  'slippage 0.75bp',
-  'look-ahead: impossible to write',
-  'walk-forward',
-  'deflated sharpe',
-  "hansen's spa",
-  'monte carlo',
-  'live ↔ backtest parity',
-  '75 tools over mcp',
+  `${meta.strategy} · ${meta.market.bar} bars`,
+  `gross return ${pct(naive.return)} → net ${pct(real.return)}`,
+  `sharpe ${naive.sharpe.toFixed(2)} → ${real.sharpe.toFixed(2)} after costs`,
+  'signal at close[t], fill at open[t+1]',
+  'fee 0.5bp + slippage 0.75bp per fill',
+  'look-ahead bias ruled out by construction',
+  'walk-forward out-of-sample splits',
+  'deflated sharpe ratio for multiple testing',
+  "hansen's SPA test against data-snooping",
+  'monte carlo resampling of trade paths',
+  'null market: synthetic series with zero edge',
+  'identical engine for live and backtest',
+  '75 research tools exposed over MCP',
 ];
 
 // The same tape, running through the outlined letters of the wordmark.
@@ -158,16 +157,16 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
       <div class="wrap engine-body">
         <p class="kicker">The engine</p>
         <h2 id="engine-title" class="wordmark" style={`view-transition-name: title-${engine.id}`}>
-          <span class="visually-hidden">Invictus</span>
+          <span class="visually-hidden">Miran</span>
           <!-- The tape is clipped to the letters' filled shapes. The outline is the
                text's stroke with its inside masked away, so the overlapping contours
                inside Syne's heavy glyphs never show. viewBox is fitted after fonts load. -->
           <svg class="wm" viewBox="0 -170 1140 210" aria-hidden="true" data-wordmark>
             <defs>
-              <clipPath id="wm-clip"><text class="wm-text" y="0">Invictus</text></clipPath>
+              <clipPath id="wm-clip"><text class="wm-text" y="0">Miran</text></clipPath>
               <mask id="wm-outside" maskUnits="userSpaceOnUse" x="-50" y="-300" width="2000" height="500">
                 <rect x="-50" y="-300" width="2000" height="500" fill="#fff" />
-                <text class="wm-text" y="0" fill="#000">Invictus</text>
+                <text class="wm-text" y="0" fill="#000">Miran</text>
               </mask>
             </defs>
             <g clip-path="url(#wm-clip)">
@@ -177,24 +176,24 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
                 ))}
               </g>
             </g>
-            <text class="wm-text wm-outline" y="0" mask="url(#wm-outside)">Invictus</text>
+            <text class="wm-text wm-outline" y="0" mask="url(#wm-outside)">Miran</text>
           </svg>
         </h2>
         <div class="thesis">
           <p class="thesis-lead">{engine.data.problem}</p>
           <p>
-            Invictus is the trading research platform I'm building to fund my future ambitions. It doesn't make money yet.
+            Miran is the trading research platform I'm building to fund my future ambitions. It doesn't make money yet.
             It's built on one rule: <strong>a result only counts if it survives the costs and timing you'd face with real money.</strong>
           </p>
         </div>
 
         <div class="desk">
           <div class="desk-bar">
-            <span>Invictus / research</span>
+            <span>Miran / research</span>
             <span>{meta.strategy} · synthetic FX · {meta.market.bar}</span>
           </div>
           <p class="desk-intro">
-            Try it. A real strategy from the Invictus library, on a market generated with <em>no edge at all</em>.
+            Try it. A real strategy from the Miran library, on a market generated with <em>no edge at all</em>.
             The naive backtest says <span class="up">{pct(naive.return)}</span>. Add what a broker actually charges.
           </p>
           <BacktestDemo id="home-demo" />
@@ -368,7 +367,6 @@ const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
   .tape span { padding: 0.55rem 1.25rem; font: 700 0.78rem var(--code); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
   .tape span::before { content: '▲ '; }
   .tape span:nth-child(3n + 2)::before { content: '▼ '; }
-  .tape:hover .tape-run { animation-play-state: paused; }
   @keyframes tape { to { transform: translateX(-50%); } }
 
   .wordmark { margin: 0.5rem 0 0; line-height: 0; }

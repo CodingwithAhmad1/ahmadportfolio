@@ -1,5 +1,5 @@
 ---
-title: Invictus
+title: Miran
 tagline: A backtesting engine that refuses to flatter a strategy.
 helps: Funds what comes next, long term
 people: The engine
@@ -8,9 +8,9 @@ order: 5
 year: '2026'
 status: Private
 stack: [Python 3.13, Numba, FastAPI, Parquet, React, Lightweight Charts, MCP]
-proof: The same strategy shows +18% in a naive backtest and about +2% once real costs are in. Invictus shows you the +2%.
+proof: The same strategy shows +18% in a naive backtest and about +2% once real costs are in. Miran shows you the +2%.
 stats:
-  - { value: '−16 pts', label: 'what real broker costs take from a strategy that looks like +18%', source: 'the demo above, exported from Invictus' }
+  - { value: '−16 pts', label: 'what real broker costs take from a strategy that looks like +18%', source: 'the demo above, exported from Miran' }
   - { value: '0', label: 'ways to write look-ahead. The strategy language cannot read a future bar', source: 'the case study' }
   - { value: '1:1', label: 'live sessions replayed against the backtest, fill for fill', source: 'the case study' }
 flagship: true
@@ -20,17 +20,17 @@ import BacktestDemo from '../../components/BacktestDemo.astro';
 import Note from '../../components/Note.astro';
 import Knowability from '../../components/Knowability.astro';
 import { Image } from 'astro:assets';
-import research from '../../assets/work/invictus-research.png';
+import research from '../../assets/work/miran-research.png';
 
 ## The problem
 
 Most backtests lie, and not on purpose. They fill orders at prices nobody could have traded at, ignore what the broker charges, and let you tune a strategy until it fits the past perfectly. The equity curve looks great right up until real money touches it.
 
-Invictus is a full research and trading platform built around one rule: **a result must carry the assumptions that produced it, and those assumptions must be ones you could actually trade under.**
+Miran is a full research and trading platform built around one rule: **a result must carry the assumptions that produced it, and those assumptions must be ones you could actually trade under.**
 
 ## See it lie, then see the truth
 
-The strategy below is a real one from the Invictus library, run by the real engine. The market is synthetic: Invictus generated it from a seeded random process, so there is no edge to find. Start from the naive setup, then add the costs a real broker charges.
+The strategy below is a real one from the Miran library, run by the real engine. The market is synthetic: Miran generated it from a seeded random process, so there is no edge to find. Start from the naive setup, then add the costs a real broker charges.
 
 <BacktestDemo id="case-demo" />
 
@@ -69,7 +69,7 @@ The library behind `ta.*` has around a hundred functions, and tests hold every r
 
 ## Rigour, built in
 
-A good-looking backtest is the start of the questions, not the end. Invictus answers the next ones without leaving the app:
+A good-looking backtest is the start of the questions, not the end. Miran answers the next ones without leaving the app:
 
 - **Walk-forward analysis**, rolling and anchored, showing how much a result degrades on data it never saw.
 - **Deflated Sharpe ratio**, which discounts a result for how many variations were tried to find it.
@@ -83,7 +83,7 @@ The fill core is compiled with Numba. Each execution model is turned into a fill
 
 Paper and live trading run on a separate event-driven engine, held to the backtest by a parity report that replays each live session and compares fill for fill. An MCP server exposes 75 tools, so an AI agent can write, test and run strategies through the same checks a person would.
 
-<Image src={research} alt="The Invictus research view: a daily SPY candlestick chart with a hand-drawn trend line and support level, the backtest panel below." widths={[800, 1400]} sizes="(max-width: 1100px) 100vw, 1100px" class="shot" />
+<Image src={research} alt="The Miran research view: a daily SPY candlestick chart with a hand-drawn trend line and support level, the backtest panel below." widths={[800, 1400]} sizes="(max-width: 1100px) 100vw, 1100px" class="shot" />
 
 ## Why you can trust the numbers
 
