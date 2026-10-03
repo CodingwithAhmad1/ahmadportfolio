@@ -18,6 +18,10 @@ Then open http://localhost:4321.
 - `src/styles/global.css`: colours and fonts
 - `src/components/NameHero.astro`: the home page hero
 
+## Docs
+
+Plans, design notes and how-tos live in [`documents/`](documents/README.md).
+
 ## Deploy
 
 `npm run build` writes a static site to `dist/`. It deploys to Vercel, Netlify or GitHub Pages without extra setup.
