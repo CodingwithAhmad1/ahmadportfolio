@@ -1,0 +1,25 @@
+---
+import Socials from './Socials.astro';
+import { site } from '../site';
+---
+
+<footer class="wrap">
+  <Socials />
+  <p class="muted">© {new Date().getFullYear()} {site.fullName}</p>
+</footer>
+
+<style>
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-top: 6rem;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.95rem;
+  }
+  p { margin: 0; }
+</style>

@@ -1,0 +1,68 @@
+---
+import { site } from '../site';
+import Socials from './Socials.astro';
+
+const letters = [...site.name];
+---
+
+<section class="hero wrap">
+  <h1 aria-label={site.name}>
+    {letters.map((ch) => <span aria-hidden="true">{ch}</span>)}
+  </h1>
+  <div class="about">
+    <p class="intro">{site.intro}</p>
+    <Socials />
+  </div>
+</section>
+
+<style>
+  .hero { padding-top: clamp(2rem, 8vh, 6rem); }
+  h1 {
+    margin: 0;
+    font-size: clamp(5.5rem, 24vw, 21rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    font-weight: 400;
+    user-select: none;
+  }
+  h1 span {
+    display: inline-block;
+    font-variation-settings: 'wght' var(--w, 450);
+    transition: font-variation-settings 0.25s ease-out;
+  }
+  .about {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 38rem;
+    margin-top: 2.5rem;
+    margin-left: auto;
+  }
+  .intro { margin: 0; font-size: 1.375rem; line-height: 1.5; }
+  @media (max-width: 700px) {
+    .about { margin-left: 0; }
+  }
+</style>
+
+<script>
+  // Letters thicken as the pointer gets near them.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const spans = [...document.querySelectorAll<HTMLElement>('.hero h1 span')];
+  if (!reduce && spans.length) {
+    const MIN = 450, MAX = 800;
+    let frame = 0;
+    const update = (x: number, y: number) => {
+      const radius = Math.max(window.innerWidth * 0.35, 260);
+      for (const s of spans) {
+        const r = s.getBoundingClientRect();
+        const d = Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2));
+        const t = Math.max(0, 1 - d / radius);
+        s.style.setProperty('--w', String(Math.round(MIN + (MAX - MIN) * t * t)));
+      }
+    };
+    window.addEventListener('pointermove', (e) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => update(e.clientX, e.clientY));
+    });
+    document.addEventListener('pointerleave', () => spans.forEach((s) => s.style.removeProperty('--w')));
+  }
+</script>

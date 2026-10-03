@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+
+<Base title="Writing" description="Posts by Ahmad Azim.">
+  <section class="wrap page">
+    <h1>Writing</h1>
+    <p class="muted lede">Notes on building things, newest first.</p>
+    <ul class="rows">
+      {posts.map((post) => (
+        <li>
+          <a href={`/blog/${post.id}`}>
+            <span class="title">{post.data.title}</span>
+            <time class="meta" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+            <span class="summary">{post.data.description}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .page { padding-top: 3rem; }
+  h1 { font-size: clamp(3rem, 9vw, 6rem); margin: 0; }
+  .lede { margin: 0.75rem 0 2.5rem; }
+</style>

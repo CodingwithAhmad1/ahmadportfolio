@@ -1,0 +1,34 @@
+---
+import { site } from '../site';
+
+const links = [
+  { href: '/work', label: 'Work' },
+  { href: '/blog', label: 'Writing' },
+];
+const path = Astro.url.pathname;
+---
+
+<header class="wrap">
+  <a class="mark" href="/">{site.fullName}</a>
+  <nav aria-label="Main">
+    {links.map(({ href, label }) => (
+      <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>{label}</a>
+    ))}
+  </nav>
+</header>
+
+<style>
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  a { text-decoration: none; font-family: var(--display); }
+  .mark { font-weight: 700; }
+  nav { display: flex; gap: 1.5rem; }
+  nav a { font-weight: 500; }
+  nav a[aria-current='page'] { text-decoration: underline; text-decoration-thickness: 2px; }
+</style>
