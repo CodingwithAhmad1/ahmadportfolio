@@ -10,7 +10,7 @@ const links = [
 ---
 
 <header class="wrap">
-  <a class="mark" href="/">{site.fullName}</a>
+  {!onHome && <a class="mark" href="/">{site.fullName}</a>}
   <nav aria-label="Main">
     {links.map(({ href, label }) => (
       <a href={onHome && href.startsWith('/#') ? href.slice(1) : href}>{label}</a>
@@ -31,7 +31,7 @@ const links = [
   }
   a { text-decoration: none; font-family: var(--display); }
   .mark { font-weight: 700; white-space: nowrap; }
-  nav { display: flex; align-items: center; gap: clamp(0.9rem, 3vw, 1.75rem); }
+  nav { margin-left: auto; display: flex; align-items: center; gap: clamp(0.9rem, 3vw, 1.75rem); }
   nav a { font-weight: 500; position: relative; }
   nav a::after {
     content: '';

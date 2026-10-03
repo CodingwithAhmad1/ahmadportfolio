@@ -48,7 +48,7 @@
 
 ### Phase 5: Polish and extras
 
-- [x] Manual light/dark toggle
+- [x] ~~Manual light/dark toggle~~ (removed in v3: one dark stage)
 - [ ] Privacy-friendly analytics (Plausible, Umami or Vercel Analytics)
 - [ ] Lighthouse 95+ in every category
 - [ ] Newsletter or "follow" option, if posting becomes regular
@@ -59,7 +59,6 @@ The single backlog of things to come back to. Tick them off here.
 
 ### Before launch
 
-- [ ] Set your age in `src/site.ts` (it shows next to your name once set)
 - [ ] Add a public email, LinkedIn and X to `src/site.ts`. Empty links are hidden, so only GitHub shows today
 - [ ] Buy a domain, deploy (see [DEPLOYMENT.md](DEPLOYMENT.md)) and set `site` in `astro.config.mjs`
 - [ ] Replace the "Hello, world" post with a real first post
@@ -83,7 +82,7 @@ The single backlog of things to come back to. Tick them off here.
 
 Every number on the site has a note saying where it came from. When a number changes, update the number and its note together.
 
-- [ ] Refresh Invictus stats (tests, commits, lines) every month or so. Commands are in [CONTENT.md](CONTENT.md)
+- [ ] Check the stat labels sourced to "the case study" are still true (Speak Up, JurisLearning, ReportIQ, Invictus)
 - [ ] If Invictus's engine changes what it trades, re-run `scripts/export-invictus-demo.py` so the demo matches
 - [ ] Student Atlas: re-count sources and citations when content grows
 
@@ -99,6 +98,7 @@ Every number on the site has a note saying where it came from. When a number cha
 - [ ] Open Graph share images per page, ideally the demo chart for Invictus
 - [ ] Load the fonts from the site itself instead of Google Fonts, for speed and privacy
 - [ ] Lighthouse pass and a screen reader check of the demo
+- [ ] Test the boot and trading floor on a low-end phone; lower the candle count if it stutters
 - [ ] Upgrade to Astro 7 once Node is 22.12 or newer
 
 ## Ideas parking lot
@@ -113,4 +113,4 @@ Things that might be fun later. Not commitments.
 
 ## Current focus
 
-v3 is live locally and pushed. Next: the "Before launch" list under Later, then deploy. Update this line when the focus changes.
+v4 (boot, trading floor, Trading Floor palette) is pushed. Next: the "Before launch" list under Later, then deploy. Update this line when the focus changes.

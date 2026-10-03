@@ -53,9 +53,9 @@ Format: date, decision, why, and what would make you revisit it.
 
 **Superseded** by the black stage below.
 
-### 2026-10-03: Name and age only
+### 2026-10-03: Name only
 
-**Why:** Ahmad's choice. No about page, photo or CV; the work speaks.
+**Why:** Ahmad's choice; he dropped his age on the v4 pass. No about page, photo or CV; the work speaks.
 **Revisit if:** Ahmad wants an about page.
 
 ### 2026-10-03: How private and shared work is shown
@@ -70,10 +70,12 @@ Format: date, decision, why, and what would make you revisit it.
 
 ### 2026-10-03: People first, Invictus as the engine
 
-**Why:** Ahmad's premise is social impact. The four impact projects lead and each says who it helps. Invictus is framed honestly as the engine that should fund the work long term. It doesn't make money today.
+**Why:** Ahmad's premise is social impact. The four impact projects lead and each says who it helps. Invictus is framed honestly as the engine that should fund his **future** ambitions and interests, not the current projects. It doesn't make money today.
 **Revisit if:** Invictus starts earning, or the mission changes.
 
 ### 2026-10-03: A black stage with colour worlds, no theme toggle
+
+**Superseded** by the Trading Floor palette below; the colour-world system stays.
 
 **Why:** One strong look beats two average ones. Five saturated worlds read best against black. The token system lets each panel repaint every component inside it with no extra code.
 **Revisit if:** Readability complaints on long case study pages; then consider a light reading mode for those pages only.
@@ -82,3 +84,23 @@ Format: date, decision, why, and what would make you revisit it.
 
 **Why:** The radar draws Student Atlas's real 305 sources. The deck uses JurisLearning's real case summaries. ReportIQ uses its real gap rules and question wording, with layer 1 approximated by simple rules in the browser and labelled as such. Speak Up's ideas are samples and say so. Nothing pretends to be live when it isn't.
 **Revisit if:** A project gets a public API worth calling live.
+
+### 2026-10-03: v4, a boot that proves the point, and a trading floor
+
+**Why:** Ahmad wanted the first seconds to say "wow" and the page to read as one story. The boot replays the real demo (+18% naive, +2% after costs), so the intro is the Invictus argument, not decoration. The engine section is the only place things move on their own, which sets it apart from the calm project rows.
+**Revisit if:** The boot feels slow on repeat visits, or the trading floor costs too much on phones.
+
+### 2026-10-03: Trading Floor palette, amber means money
+
+**Why:** Pure black plus five saturated colours read as toys. A warm near-black, warm white text and one amber accent reserved for Invictus look like one brand. Project colours were retuned to one brightness; ReportIQ moved to violet so it doesn't clash with amber.
+**Revisit if:** Amber starts appearing on things that aren't Invictus.
+
+### 2026-10-03: No connecting line, no hero table, no "loop" section
+
+**Why:** Tried in v4 and cut by Ahmad: the scroll-drawn amber thread, the project status board in the hero, the mission heading, and a closing section showing Invictus money flowing to the four projects (that framing was wrong, see above).
+**Revisit if:** The page needs more connective tissue between projects and engine.
+
+### 2026-10-03: Stats say what matters
+
+**Why:** "4,442 tests" means nothing to a visitor. Every stat now states an outcome or a capability, with its source. Invictus's features live in front matter so Ahmad can rewrite them.
+**Revisit if:** Never. Keep vanity counts off the home page.

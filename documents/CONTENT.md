@@ -67,27 +67,27 @@ The monitor watches 305 sources.<Note>Unique URLs in <code>citations.ts</code>.<
 
 On wide screens the note sits in the margin; on phones it drops under the line.
 
-## Refresh the Invictus numbers
+## Edit the home page copy
 
-Run these in `../backtestengine` and update the home page (`src/pages/index.astro`) and `src/content/projects/invictus.mdx`, numbers and notes together:
+- **Statement and bridge sentence:** `src/site.ts`.
+- **Each project row:** `people` (shown as "For …") and `problem` in the project's front matter.
+- **Stats:** three per project in front matter, each with a `source`. Lead with what a visitor cares about (who it helps, what it does, what it caught), never test, commit or line counts.
+- **Invictus features:** the `features` list in `src/content/projects/invictus.mdx`. Each is a short title and one sentence.
+- **Ticker tape:** the `tape` list in `src/pages/index.astro`. Every item must be a real result or a real feature.
 
-```bash
-.venv/bin/python -m pytest --co -q 2>&1 | grep -E "^tests/.*: [0-9]+$" | awk -F': ' '{s+=$2} END {print s " tests in " NR " files"}'
-```
+## Regenerate the Invictus demo
 
-```bash
-git rev-list --count HEAD
-```
-
-To regenerate the demo after the engine changes, from this repo:
+After the engine changes what it trades, from this repo:
 
 ```bash
 ../backtestengine/.venv/bin/python scripts/export-invictus-demo.py
 ```
 
-## Update socials or intro
+The boot, the demo and the trading floor all update from that one file.
 
-Both live in `src/site.ts`, along with your age. A social link with an empty `href` is hidden.
+## Update socials
+
+They live in `src/site.ts`. A social link with an empty `href` is hidden.
 
 ## Writing checklist
 
@@ -105,3 +105,5 @@ Add ideas here as they come up.
 - Why I built this site, and the choices behind it
 - A project write-up: what went wrong and what I'd change
 - Something I learned this month
+- How I stop my backtests lying to me
+- A visa guide that keeps itself up to date

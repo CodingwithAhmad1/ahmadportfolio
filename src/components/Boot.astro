@@ -1,7 +1,7 @@
 ---
 // The home page's opening. It replays the real Invictus demo: the naive backtest
 // climbs to +18%, real costs are applied and it falls to +2%, then the line
-// flattens into the baseline the hero stands on and the screen closes onto it.
+// flattens under the hero statement and the screen closes onto it.
 // Armed by an inline script in <head> (see index.astro); without JS it never shows.
 import { variants, range, meta, NAIVE, DEFAULT } from '../lib/demo';
 
@@ -227,11 +227,12 @@ const payload = JSON.stringify({
     const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
     const phase = (now: number, [a, b]: number[]) => clamp01((now - a) / (b - a));
 
-    // Where the line lands: the baseline under the hero statement.
+    // Where the line lands: just under the hero statement, across its column.
     const target = () => {
-      const el = document.querySelector<HTMLElement>('[data-baseline]');
+      const el = document.querySelector<HTMLElement>('.hero .statement');
       const r = el?.getBoundingClientRect();
-      return r ? { y: r.top + r.height / 2, x0: r.left, x1: r.right } : { y: H * 0.62, x0: 24, x1: W - 24 };
+      const col = el?.parentElement?.getBoundingClientRect();
+      return r && col ? { y: Math.min(r.bottom + 24, H - 24), x0: col.left, x1: col.right } : { y: H * 0.62, x0: 24, x1: W - 24 };
     };
 
     let stamped = false;

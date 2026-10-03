@@ -2,13 +2,15 @@
 
 ## Idea
 
-**People first, the engine pays, one line ties it together.**
+**People first, then the engine for what comes next.**
 
-The home page tells one story in five acts. A boot sequence replays the real Invictus demo: the naive backtest climbs to +18%, real costs cut it to +2%, and the line flattens into the baseline the hero stands on. The **mission** lists four projects as stations on an amber thread running down the left margin; each opens into its colour and a working demo. A **bridge** lights up word by word and darkens the stage. The **engine** is a trading floor: ticker tape, the INVICTUS wordmark with the tape running through its letters, the playable backtest, and feature modules. The **loop** splits the amber line back into the four project colours.
+The home page is a short story. A boot sequence replays the real Invictus demo: the naive backtest climbs to +18%, real costs cut it to +2%, and the screen closes onto a line under the hero statement. Then the four projects, each a full-width row that says who it's for and the problem it solves, and opens into its colour and a working demo. A **bridge** lights up word by word and darkens the stage. The **engine** is a trading floor: ticker tape, the INVICTUS wordmark with the tape running through its letters, the playable backtest, feature modules and three stats.
+
+Invictus funds Ahmad's **future** ambitions and interests, not the current projects. Never draw money flowing from it into the four projects.
 
 ## Colour: "Trading Floor"
 
-Warm near-black stage, warm white for people, **amber for money**. Amber only appears on the thread, Invictus and live readouts, so the colour itself carries the story.
+Warm near-black stage, warm white for people, **amber for money**. Amber only appears on Invictus, the boot and live readouts, so the colour itself carries the story.
 
 | Token | Value |
 | --- | --- |
@@ -53,10 +55,9 @@ A small cobalt number after a claim, and the source in the right margin, like a 
 ## Motion
 
 - **Boot** (home page only, about 3s): first arrival only, never when coming back from another page on the site, following a link to a project, or with reduced motion. Skippable by any key, click or scroll. `?boot` forces it. Armed by an inline script in `<head>`, with a 6s failsafe.
-- **The thread** draws as you scroll; stations light up in their project colour as it reaches them.
 - **Bridge** words light up with scroll.
 - **The engine is the only place things move on their own**: candles at three depths, order-book depth, fill tickets, ticker tape. The canvas only runs on screen and draws one still frame with reduced motion. All prices come from the demo's synthetic market. The calm of the mission and the hum of the engine is deliberate.
-- Letters thicken as the pointer approaches. The departures board flips into place after the boot.
+- Letters thicken as the pointer approaches. After the boot, the statement rises into place.
 - Respect `prefers-reduced-motion` everywhere.
 
 ## Avoid
@@ -65,7 +66,7 @@ These are the things that make a site look templated:
 
 - Cards with rounded corners and drop shadows for every item
 - All-caps labels above headings
-- Gradient backgrounds and glows (amber glow on the thread and wordmark is the one exception)
+- Gradient backgrounds and glows (amber glow on the boot line and wordmark is the one exception)
 - Numbered markers (01, 02, 03) on things that aren't a sequence
 - Arrows tacked onto every link
 
