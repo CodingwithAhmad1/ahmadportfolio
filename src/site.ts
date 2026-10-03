@@ -1,14 +1,15 @@
-// Edit this file to change your name, age, intro and links.
+// Edit this file to change your name, intro and links.
 export const site = {
   name: 'Ahmad',
   fullName: 'Ahmad Azim',
-  // TODO: set your age (a number). It shows next to your name when set.
-  age: null as number | null,
   description:
-    'Ahmad Azim builds software for people: visa guidance for students, safe whistleblowing, law learning, a student parliament. And a trading engine to fund it.',
+    'Ahmad Azim builds software for people who get overlooked: students crossing borders, whistleblowers, future lawyers, pupils who want a say. And a trading engine, still being built, to fund it all.',
   statement: 'I build software for people.',
   intro:
-    "For students crossing borders, people brave enough to report wrongdoing, future lawyers, and pupils who want to be heard. And one engine, still being built, to pay for all of it in the long run.",
+    'Four tools for people who usually get overlooked. One trading engine, still being built, to pay for them in the long run.',
+  // The pinned moment between the mission and the engine. Words light up as you scroll.
+  bridge:
+    "Good projects die when the money runs out. So I'm building the thing that pays for them, and holding it to a standard most trading tools don't.",
 };
 
 // Links with an empty href are hidden. TODO: fill in LinkedIn, X and a public email.

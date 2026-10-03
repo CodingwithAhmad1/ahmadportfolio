@@ -18,6 +18,9 @@ const projects = defineCollection({
     tagline: z.string(),
     // Who the project is for, shown on its row on the home page.
     helps: z.string(),
+    // The people it's for, shown big on the home page, and the problem they have.
+    people: z.string().optional(),
+    problem: z.string().optional(),
     order: z.number(),
     year: z.string(),
     status: z.enum(['Live', 'Open source', 'Private', 'Launching soon', 'In use']),
@@ -29,6 +32,8 @@ const projects = defineCollection({
     proof: z.string(),
     // Three headline numbers for the home page panel, each with where it came from.
     stats: z.array(z.object({ value: z.string(), label: z.string(), source: z.string() })).length(3),
+    // What it can do, as short titled lines. Shown as modules on the home page.
+    features: z.array(z.object({ title: z.string(), detail: z.string() })).default([]),
     flagship: z.boolean().default(false),
   }),
 });

@@ -2,15 +2,17 @@
 title: JurisLearning
 tagline: A home for students heading into law, from the news to the LNAT.
 helps: Helps students on their way into law
+people: Future law students
+problem: Reading widely means a dozen sites, a notebook, and nowhere to show how you think.
 order: 3
 year: '2026'
 status: Launching soon
 stack: [FastAPI, PostgreSQL, SQLAlchemy, React, TypeScript, Tiptap, Render]
 proof: 36 pages, legal news pulled in every two hours, 40+ landmark cases in plain English.
 stats:
-  - { value: '42', label: 'landmark cases in plain English', source: 'constants/case_seeds.py' }
-  - { value: '2h', label: 'between news refreshes', source: 'tasks/scheduler.py' }
-  - { value: '36', label: 'pages', source: 'frontend/src/pages/' }
+  - { value: '42', label: 'landmark cases explained in plain English', source: 'constants/case_seeds.py' }
+  - { value: '40', label: 'LNAT essay titles, each with planning angles', source: 'the case study' }
+  - { value: '2h', label: 'at most, from a legal story breaking to it reaching your feed', source: 'tasks/scheduler.py' }
 ---
 
 import Note from '../../components/Note.astro';

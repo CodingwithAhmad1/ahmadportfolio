@@ -1,20 +1,25 @@
 /*
- * One black stage, five colour worlds. Each project owns a colour; when it opens,
- * its panel redefines the tokens below, so every component inside repaints itself.
+ * Trading Floor. One warm near-black stage. Colour carries the story:
+ * amber (--signal) is money, warm white is people, and each project keeps a
+ * colour of its own, all tuned to the same brightness so they read as a family.
+ * When a project opens, its panel redefines the tokens below and every
+ * component inside repaints itself.
  */
 :root {
-  --paper: #000;
-  --paper-2: #101010;
-  --ink: #f3f1ec;
-  --muted: rgba(243, 241, 236, 0.55);
-  --line: rgba(243, 241, 236, 0.16);
-  --accent: #6f86ff;
-  --ghost: rgba(243, 241, 236, 0.35);
-  --gain: #59e39b;
-  --loss: #ff7a5c;
+  --paper: #0b0b0c;
+  --paper-2: #141416;
+  --paper-3: #1c1c21;
+  --ink: #edebe6;
+  --muted: #8e8b84;
+  --line: #24242c;
+  --accent: #ffb000;
+  --signal: #ffb000;
+  --ghost: rgba(237, 235, 230, 0.32);
+  --gain: #4ade80;
+  --loss: #f05252;
   --display: 'Syne', system-ui, sans-serif;
   --body: 'Newsreader', Georgia, serif;
-  --code: ui-monospace, 'SF Mono', Menlo, monospace;
+  --code: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --measure: 40rem;
   --gutter: clamp(1rem, 4vw, 3rem);
   color-scheme: dark;
@@ -22,11 +27,11 @@
 }
 
 /* The worlds. `--world` is the panel colour, `--on` the text colour on it. */
-[data-world='invictus'] { --world: #3b5bff; --on: #fff; }
-[data-world='student-atlas'] { --world: #ff5b2e; --on: #0a0a0a; }
-[data-world='reportiq'] { --world: #f2df3a; --on: #0a0a0a; }
-[data-world='jurislearning'] { --world: #a0183a; --on: #fff; }
-[data-world='speak-up'] { --world: #2bd982; --on: #0a0a0a; }
+[data-world='student-atlas'] { --world: #ff6b3d; --on: #0b0b0c; }
+[data-world='reportiq'] { --world: #9b8cff; --on: #0b0b0c; }
+[data-world='jurislearning'] { --world: #e5486a; --on: #0b0b0c; }
+[data-world='speak-up'] { --world: #5eead4; --on: #0b0b0c; }
+[data-world='invictus'] { --world: #ffb000; --on: #0b0b0c; }
 
 /* Inside an open world, every token follows its colours. */
 .in-world {
@@ -68,7 +73,7 @@ body::after {
   inset: 0;
   z-index: 100;
   pointer-events: none;
-  opacity: 0.08;
+  opacity: 0.06;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -88,7 +93,7 @@ code, pre { font-family: var(--code); }
 
 img { max-width: 100%; height: auto; }
 
-::selection { background: var(--ink); color: var(--paper); }
+::selection { background: var(--signal); color: #0b0b0c; }
 
 :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 2px; }
 
@@ -165,7 +170,7 @@ img { max-width: 100%; height: auto; }
   }
 }
 
-/* Code blocks: dark theme on the black stage. */
+/* Code blocks: dark theme on the stage. */
 .astro-code, .astro-code span { color: var(--shiki-dark); background-color: var(--paper-2); }
 
 @media (prefers-reduced-motion: reduce) {

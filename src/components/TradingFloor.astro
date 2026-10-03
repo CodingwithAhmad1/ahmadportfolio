@@ -1,0 +1,204 @@
+---
+// The ambient layer behind the engine: candles drifting at three depths, an order
+// book breathing at the edge and fill tickets floating up. Every price comes from
+// the same synthetic market the demo runs on, so nothing on screen is invented.
+// It only runs while on screen, and draws a single still frame for reduced motion.
+import raw from '../data/invictus-demo.json';
+
+const series = (raw as unknown as { price: [number, number][] }).price.map(([, p]) => p);
+const SIZE = 4;
+const candles: number[][] = [];
+for (let i = 0; i + SIZE <= series.length; i += SIZE) {
+  const slice = series.slice(i, i + SIZE + 1);
+  candles.push([slice[0], Math.max(...slice), Math.min(...slice), slice[slice.length - 1]].map((v) => +v.toFixed(5)));
+}
+const payload = JSON.stringify(candles);
+---
+
+<div class="floor" aria-hidden="true">
+  <canvas data-floor></canvas>
+  <script type="application/json" data-candles set:html={payload} />
+</div>
+
+<style>
+  .floor { position: absolute; inset: 0; pointer-events: none; }
+  canvas { opacity: 0.8; position: sticky; top: 0; display: block; width: 100%; height: 100vh; }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('.floor');
+  if (root) start(root);
+
+  function start(root: HTMLElement) {
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-floor]')!;
+    const ctx = canvas.getContext('2d')!;
+    const candles = JSON.parse(root.querySelector('[data-candles]')!.textContent!) as number[][];
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const small = window.matchMedia('(max-width: 700px)').matches;
+
+    const GAIN = '74,222,128';
+    const LOSS = '240,82,82';
+    const AMBER = '255,176,0';
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0;
+    let H = 0;
+    const resize = () => {
+      W = canvas.clientWidth;
+      H = canvas.clientHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    new ResizeObserver(resize).observe(canvas);
+
+    // Three strips of candles at different depths, each starting somewhere else in the series.
+    const layers = [
+      { scale: 0.45, speed: 10, alpha: 0.1, band: [0.08, 0.38], offset: 0 },
+      { scale: 0.75, speed: 22, alpha: 0.18, band: [0.42, 0.72], offset: 160 },
+      { scale: 1.15, speed: 40, alpha: 0.32, band: [0.6, 0.95], offset: 320 },
+    ].map((l) => (small ? { ...l, scale: l.scale * 0.7 } : l));
+
+    // Pointer parallax, eased.
+    let px = 0;
+    let py = 0;
+    let tx = 0;
+    let ty = 0;
+    window.addEventListener('pointermove', (e) => {
+      tx = e.clientX / window.innerWidth - 0.5;
+      ty = e.clientY / window.innerHeight - 0.5;
+    }, { passive: true });
+
+    type Ticket = { x: number; y: number; born: number; text: string; buy: boolean };
+    const tickets: Ticket[] = [];
+    let nextTicket = 0;
+    let cursor = 0;
+
+    const drawLayer = (l: (typeof layers)[number], time: number) => {
+      const w = 9 * l.scale;
+      const gapW = 5 * l.scale;
+      const step = w + gapW;
+      const count = Math.ceil(W / step) + 2;
+      const shift = ((time / 1000) * l.speed) % step;
+      const first = Math.floor(((time / 1000) * l.speed) / step);
+      // Fit the visible window's prices into this layer's band.
+      const vis: number[][] = [];
+      for (let i = 0; i < count; i++) vis.push(candles[(l.offset + first + i) % candles.length]);
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (const c of vis) { lo = Math.min(lo, c[2]); hi = Math.max(hi, c[1]); }
+      const top = H * l.band[0];
+      const bot = H * l.band[1];
+      const y = (v: number) => bot - ((v - lo) / (hi - lo || 1)) * (bot - top);
+      const ox = px * 60 * l.scale;
+      const oy = py * 30 * l.scale;
+      for (let i = 0; i < count; i++) {
+        const [o, h, lw, c] = vis[i];
+        const x = i * step - shift + ox;
+        const up = c >= o;
+        const rgb = up ? GAIN : LOSS;
+        ctx.strokeStyle = `rgba(${rgb},${l.alpha})`;
+        ctx.fillStyle = `rgba(${rgb},${l.alpha})`;
+        ctx.lineWidth = Math.max(1, l.scale);
+        ctx.beginPath();
+        ctx.moveTo(x + w / 2, y(h) + oy);
+        ctx.lineTo(x + w / 2, y(lw) + oy);
+        ctx.stroke();
+        const yo = y(Math.max(o, c)) + oy;
+        const hgt = Math.max(1, Math.abs(y(o) - y(c)));
+        if (up) ctx.strokeRect(x + 0.5, yo, w - 1, hgt);
+        else ctx.fillRect(x, yo, w, hgt);
+      }
+      return { last: vis[vis.length - 2] };
+    };
+
+    const drawBook = (time: number, mid: number) => {
+      // Bid and ask depth at the right edge, breathing slowly.
+      const levels = small ? 10 : 18;
+      const rowH = Math.min(14, (H * 0.5) / (levels * 2));
+      const right = W - 12;
+      const cy = H * 0.5 + py * 20;
+      ctx.font = `10px 'JetBrains Mono', ui-monospace, monospace`;
+      ctx.textAlign = 'right';
+      for (let side = -1; side <= 1; side += 2) {
+        let cum = 0;
+        for (let i = 0; i < levels; i++) {
+          const n = 0.55 + 0.45 * Math.sin(time / 900 + i * 1.7 + side) * Math.sin(time / 1700 + i * 0.6);
+          cum += 6 + n * 14;
+          const w = Math.min(W * 0.22, cum * (small ? 1.3 : 2.2));
+          const yy = cy + side * (i * rowH + 2) - (side < 0 ? rowH : 0);
+          const rgb = side < 0 ? LOSS : GAIN;
+          ctx.fillStyle = `rgba(${rgb},${0.09 + 0.06 * (1 - i / levels)})`;
+          ctx.fillRect(right - w, yy, w, rowH - 2);
+          if (i < 6 && !small) {
+            ctx.fillStyle = `rgba(${rgb},0.35)`;
+            ctx.fillText((mid + side * (i + 1) * 0.00005).toFixed(5), right - 4, yy + rowH - 4);
+          }
+        }
+      }
+      // The mid price.
+      ctx.strokeStyle = `rgba(${AMBER},0.6)`;
+      ctx.setLineDash([2, 4]);
+      ctx.beginPath();
+      ctx.moveTo(right - W * 0.24, cy);
+      ctx.lineTo(right, cy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (!small) {
+        ctx.fillStyle = `rgba(${AMBER},0.6)`;
+        ctx.fillText(mid.toFixed(5), right - W * 0.24 - 8, cy + 3);
+      }
+    };
+
+    const drawTickets = (time: number) => {
+      if (time > nextTicket) {
+        nextTicket = time + (small ? 1400 : 650);
+        const c = candles[cursor++ % candles.length];
+        const buy = c[3] >= c[0];
+        tickets.push({
+          x: W * (0.05 + Math.random() * (small ? 0.8 : 0.62)),
+          y: H * (0.55 + Math.random() * 0.4),
+          born: time,
+          buy,
+          text: `FILL ${buy ? 'BUY ' : 'SELL'} SYN/FX 4H @ ${c[3].toFixed(5)}  slip 0.75bp`,
+        });
+      }
+      ctx.font = `11px 'JetBrains Mono', ui-monospace, monospace`;
+      ctx.textAlign = 'left';
+      for (let i = tickets.length - 1; i >= 0; i--) {
+        const t = tickets[i];
+        const age = (time - t.born) / 4200;
+        if (age >= 1) { tickets.splice(i, 1); continue; }
+        const a = Math.sin(age * Math.PI) * 0.75;
+        const yy = t.y - age * 90;
+        const rgb = t.buy ? GAIN : LOSS;
+        ctx.fillStyle = `rgba(${rgb},${a})`;
+        ctx.fillRect(t.x, yy - 9, 2, 12);
+        ctx.fillStyle = `rgba(237,235,230,${a * 0.8})`;
+        ctx.fillText(t.text, t.x + 8, yy);
+      }
+    };
+
+    let running = false;
+    let raf = 0;
+    const frame = (time: number) => {
+      px += (tx - px) * 0.05;
+      py += (ty - py) * 0.05;
+      ctx.clearRect(0, 0, W, H);
+      let mid = 1.1;
+      for (const l of layers) mid = drawLayer(l, time).last[3];
+      drawBook(time, mid);
+      if (!reduce) drawTickets(time);
+      if (running) raf = requestAnimationFrame(frame);
+    };
+
+    if (reduce) {
+      requestAnimationFrame(frame);
+      return;
+    }
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !running) { running = true; raf = requestAnimationFrame(frame); }
+      else if (!e.isIntersecting) { running = false; cancelAnimationFrame(raf); }
+    }).observe(root);
+  }
+</script>

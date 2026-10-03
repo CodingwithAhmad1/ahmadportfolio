@@ -2,27 +2,41 @@
 
 ## Idea
 
-**People first, proof always, nothing to read unless you want to.**
+**People first, the engine pays, one line ties it together.**
 
-The home page is the whole portfolio. A statement, then four giant project names. Open one and it floods with its own colour and turns into a working demo of the project. Below them, Invictus, framed as the engine that will fund the rest in the long run, with its playable backtest. Every stat carries its source underneath. Case study pages exist for anyone who wants the depth, but nobody has to visit them.
+The home page tells one story in five acts. A boot sequence replays the real Invictus demo: the naive backtest climbs to +18%, real costs cut it to +2%, and the line flattens into the baseline the hero stands on. The **mission** lists four projects as stations on an amber thread running down the left margin; each opens into its colour and a working demo. A **bridge** lights up word by word and darkens the stage. The **engine** is a trading floor: ticker tape, the INVICTUS wordmark with the tape running through its letters, the playable backtest, and feature modules. The **loop** splits the amber line back into the four project colours.
 
-## Colour
+## Colour: "Trading Floor"
 
-A black stage (`#000`) with off-white type (`#f3f1ec`) and film grain. Each project owns a colour world. When a project opens, its panel redefines every colour token, so all the components inside repaint in its colours.
+Warm near-black stage, warm white for people, **amber for money**. Amber only appears on the thread, Invictus and live readouts, so the colour itself carries the story.
 
-| Project | Colour | Text on it |
-| --- | --- | --- |
-| Student Atlas | `#ff5b2e` ember | black |
-| ReportIQ | `#f2df3a` highlighter | black |
-| JurisLearning | `#a0183a` oxblood | white |
-| Speak Up | `#2bd982` ballot green | black |
-| Invictus | `#3b5bff` cobalt | white |
+| Token | Value |
+| --- | --- |
+| `--paper` | `#0b0b0c` (engine: `#060607`) |
+| `--paper-2` / `--paper-3` | `#141416` / `#1c1c21` |
+| `--ink` / `--muted` | `#edebe6` / `#8e8b84` |
+| `--line` | `#24242c` |
+| `--signal` | `#ffb000` |
+| `--gain` / `--loss` | `#4ade80` / `#f05252` |
 
-Worlds are set in `src/styles/global.css` under `[data-world='…']`. A new project needs one line there.
+| Project | Colour |
+| --- | --- |
+| Student Atlas | `#ff6b3d` ember |
+| ReportIQ | `#9b8cff` violet |
+| JurisLearning | `#e5486a` rose |
+| Speak Up | `#5eead4` teal |
+| Invictus | `#ffb000` amber |
+
+Worlds are set in `src/styles/global.css` under `[data-world='…']`.
+
+## Copy
+
+Every number must tell a visitor something they care about: who it helps, what it does, what it caught. No test, commit or line counts on the home page. Invictus features live in the `features` list in its frontmatter and are meant to be edited.
 
 ## Type
 
-- **Syne** (variable, 400 to 800) for headings, nav, titles and labels.
+- **Syne** (variable, 400 to 800) for headings, nav, titles and labels. At 800 its glyphs are heavy slabs; the INVICTUS wordmark is an SVG (tape clipped to the letters, masked outline) in `index.astro`.
+- **JetBrains Mono** for data, labels, the tape and the boot.
 - **Newsreader** (serif) for body text and intros.
 - Body size is 19px, line height 1.6 (1.7 in posts). Keep text columns under about 68 characters.
 
@@ -38,15 +52,12 @@ A small cobalt number after a claim, and the source in the right margin, like a 
 
 ## Motion
 
-- On load, a wave of weight rolls through the statement once.
-- Every big letter on the page (statement, project names, Invictus) thickens as the pointer approaches.
-- A project opens with its colour flooding in and its panel sliding open.
-- Hovering a project's colour swatch tints the statement.
-- The demo curve glides to its new shape when a control changes, so you see what the change did.
-- Project titles morph between the list and the case study (CSS view transitions; browsers without support just load the page).
-- Nothing moves on its own.
-- Respect `prefers-reduced-motion`: the effect switches off.
-- No fade-in-on-scroll, no loading screen, no hover animations on every element.
+- **Boot** (home page only, about 3s): first arrival only, never when coming back from another page on the site, following a link to a project, or with reduced motion. Skippable by any key, click or scroll. `?boot` forces it. Armed by an inline script in `<head>`, with a 6s failsafe.
+- **The thread** draws as you scroll; stations light up in their project colour as it reaches them.
+- **Bridge** words light up with scroll.
+- **The engine is the only place things move on their own**: candles at three depths, order-book depth, fill tickets, ticker tape. The canvas only runs on screen and draws one still frame with reduced motion. All prices come from the demo's synthetic market. The calm of the mission and the hum of the engine is deliberate.
+- Letters thicken as the pointer approaches. The departures board flips into place after the boot.
+- Respect `prefers-reduced-motion` everywhere.
 
 ## Avoid
 
@@ -54,7 +65,7 @@ These are the things that make a site look templated:
 
 - Cards with rounded corners and drop shadows for every item
 - All-caps labels above headings
-- Gradient backgrounds and glows
+- Gradient backgrounds and glows (amber glow on the thread and wordmark is the one exception)
 - Numbered markers (01, 02, 03) on things that aren't a sequence
 - Arrows tacked onto every link
 

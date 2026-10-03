@@ -1,0 +1,416 @@
+---
+// The home page's opening. It replays the real Invictus demo: the naive backtest
+// climbs to +18%, real costs are applied and it falls to +2%, then the line
+// flattens into the baseline the hero stands on and the screen closes onto it.
+// Armed by an inline script in <head> (see index.astro); without JS it never shows.
+import { variants, range, meta, NAIVE, DEFAULT } from '../lib/demo';
+
+const naive = variants[NAIVE];
+const real = variants[DEFAULT];
+const payload = JSON.stringify({
+  naive: naive.curve.map((v) => +v.toFixed(4)),
+  real: real.curve.map((v) => +v.toFixed(4)),
+  range,
+  naiveReturn: naive.kpis.return,
+  realReturn: real.kpis.return,
+  bars: meta.market.bars,
+  start: meta.market.start,
+  end: meta.market.end,
+});
+---
+
+<div id="boot" aria-hidden="true">
+  <canvas></canvas>
+  <div class="hud tl">
+    <span class="k">Ahmad Azim</span>
+    <span class="v">Portfolio, v4</span>
+  </div>
+  <div class="hud tr">
+    <span class="k">Replaying</span>
+    <span class="v"><span data-date>2019-01</span> · bar <span data-bar>0</span>/{meta.market.bars.toLocaleString('en-GB')}</span>
+  </div>
+  <ol class="hud log" data-log></ol>
+  <div class="hud br">
+    <span class="k" data-ret-label>Naive backtest</span>
+    <span class="ret" data-ret>+0.0%</span>
+    <span class="delta" data-delta>Real costs took −0.0 pts</span>
+  </div>
+  <p class="stamp" data-stamp>+ real costs</p>
+  <p class="name" data-name>AHMAD AZIM</p>
+  <button type="button" class="skip-boot" data-skip tabindex="-1">Skip</button>
+  <script type="application/json" data-boot set:html={payload} />
+</div>
+
+<style>
+  #boot { display: none; }
+  :global(html.boot) #boot {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: #0b0b0c;
+    color: #edebe6;
+    font-family: var(--code);
+    overflow: hidden;
+    clip-path: inset(0 0 0 0);
+  }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .hud {
+    position: absolute;
+    display: grid;
+    gap: 0.2rem;
+    font-size: clamp(0.68rem, 0.9vw, 0.8rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: hud-in 0.4s 0.1s ease forwards;
+  }
+  .hud .k { color: #8e8b84; }
+  .tl { top: var(--gutter); left: var(--gutter); }
+  .tr { top: var(--gutter); right: var(--gutter); text-align: right; font-variant-numeric: tabular-nums; }
+  .br { bottom: var(--gutter); right: var(--gutter); text-align: right; }
+  .ret {
+    font: 800 clamp(2.5rem, 7vw, 6rem) / 0.9 var(--display);
+    letter-spacing: -0.04em;
+    color: #4ade80;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.4s ease;
+  }
+  .ret.real { color: #ffb000; }
+  .log {
+    bottom: var(--gutter);
+    left: var(--gutter);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-width: 30rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #8e8b84;
+  }
+  .log :global(li) { white-space: nowrap; }
+  .log :global(li.on) { color: #edebe6; }
+  .log :global(li .ok) { color: #ffb000; }
+
+  .delta { color: #f05252; opacity: 0; transition: opacity 0.3s ease; }
+  .delta.on { opacity: 1; }
+  .stamp {
+    position: absolute;
+    bottom: calc(var(--gutter) + clamp(6rem, 11vw, 9.5rem));
+    right: var(--gutter);
+    margin: 0;
+    padding: 0.35rem 0.7rem;
+    border: 1.5px solid #ffb000;
+    color: #ffb000;
+    font: 700 clamp(0.8rem, 1.2vw, 1rem) var(--code);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0;
+    transform: scale(1.6) rotate(-4deg);
+  }
+  .stamp.on { animation: stamp 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
+
+  .name {
+    position: absolute;
+    left: var(--gutter);
+    top: 8%;
+    margin: 0;
+    font: 800 min(7.6vw, 9rem) / 0.9 var(--display);
+    letter-spacing: -0.045em;
+    white-space: nowrap;
+    opacity: 0;
+  }
+  .name.on { opacity: 1; }
+  .skip-boot {
+    position: absolute;
+    bottom: var(--gutter);
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    border: 0;
+    padding: 0;
+    color: #8e8b84;
+    font: 0.75rem var(--code);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+
+  /* Phones: the log moves under the top readouts, and a tap anywhere skips. */
+  @media (max-width: 700px) {
+    .log { top: calc(var(--gutter) + 3.5rem); bottom: auto; max-width: calc(100% - 2 * var(--gutter)); }
+    .log :global(li) { white-space: normal; }
+    .skip-boot { display: none; }
+    .name { top: auto; bottom: calc(var(--gutter) + 9.5rem); }
+    .stamp { bottom: calc(var(--gutter) + 14rem); }
+  }
+
+  @keyframes hud-in { to { opacity: 1; } }
+  @keyframes stamp { to { opacity: 1; transform: scale(1) rotate(-4deg); } }
+</style>
+
+<script>
+  import { scramble } from '../scripts/scramble';
+
+  type Payload = {
+    naive: number[];
+    real: number[];
+    range: { min: number; max: number };
+    naiveReturn: number;
+    realReturn: number;
+    bars: number;
+    start: string;
+    end: string;
+  };
+
+  const root = document.getElementById('boot');
+  const html = document.documentElement;
+
+  if (root && html.classList.contains('boot')) run(root);
+
+  function run(root: HTMLElement) {
+    const data = JSON.parse(root.querySelector('[data-boot]')!.textContent!) as Payload;
+    const canvas = root.querySelector('canvas')!;
+    const ctx = canvas.getContext('2d')!;
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const barEl = $('[data-bar]');
+    const dateEl = $('[data-date]');
+    const retEl = $('[data-ret]');
+    const retLabel = $('[data-ret-label]');
+    const logEl = $('[data-log]');
+    const stamp = $('[data-stamp]');
+    const name = $('[data-name]');
+    const delta = $('[data-delta]');
+
+    const AMBER = '#ffb000';
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0;
+    let H = 0;
+    const resize = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Timeline, in ms.
+    const T = { draw: [250, 1650], costs: 1700, morph: [1800, 2350], name: 1850, flat: [2500, 3000], close: [2750, 3150] };
+    const end = T.close[1];
+
+    const log = (text: string, at: number) =>
+      setTimeout(() => {
+        for (const li of logEl.children) li.classList.remove('on');
+        const li = document.createElement('li');
+        li.className = 'on';
+        li.innerHTML = `&gt; ${text}`;
+        logEl.append(li);
+        while (logEl.children.length > 5) logEl.firstElementChild!.remove();
+      }, at);
+    log('boot ahmad.azim', 0);
+    log('mount mission <span class="ok">4 tools, all for people</span>', 140);
+    log('start engine <span class="ok">invictus</span>', 300);
+    log('replay macd_atr_trend on a market with no edge', 420);
+    log('apply real costs <span class="ok">next-bar fills, 0.5bp fee, 0.75bp slip</span>', T.costs);
+    log('<span class="ok">ready</span>', T.flat[0]);
+
+    const n = data.naive.length;
+    const { min, max } = data.range;
+    const startMs = Date.parse(data.start);
+    const spanMs = Date.parse(data.end) - startMs;
+    const pct = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(1)}%`;
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+    const easeIO = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
+    const phase = (now: number, [a, b]: number[]) => clamp01((now - a) / (b - a));
+
+    // Where the line lands: the baseline under the hero statement.
+    const target = () => {
+      const el = document.querySelector<HTMLElement>('[data-baseline]');
+      const r = el?.getBoundingClientRect();
+      return r ? { y: r.top + r.height / 2, x0: r.left, x1: r.right } : { y: H * 0.62, x0: 24, x1: W - 24 };
+    };
+
+    let stamped = false;
+    let named = false;
+    let t0 = performance.now();
+    let skipped = false;
+
+    const frame = (now: number) => {
+      const t = now - t0;
+      const pad = Math.max(16, Math.min(W * 0.04, 48));
+      const top = H * 0.3;
+      const bottom = H * 0.78;
+      const xOf = (i: number) => pad + (i / (n - 1)) * (W - pad * 2);
+      const yOf = (v: number) => bottom - ((v - min) / (max - min)) * (bottom - top);
+
+      ctx.clearRect(0, 0, W, H);
+
+      // A faint grid that fades out as the screen closes.
+      const fade = 1 - phase(t, T.flat);
+      ctx.strokeStyle = `rgba(237,235,230,${0.05 * fade})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = pad; x <= W - pad + 1; x += (W - pad * 2) / 12) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+      for (let y = top; y <= bottom + 1; y += (bottom - top) / 6) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+      ctx.stroke();
+      // The zero line.
+      ctx.strokeStyle = `rgba(237,235,230,${0.18 * fade})`;
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath();
+      ctx.moveTo(pad, yOf(1));
+      ctx.lineTo(W - pad, yOf(1));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const drawP = ease(phase(t, T.draw));
+      const morphP = easeIO(phase(t, T.morph));
+      const flatP = easeIO(phase(t, T.flat));
+      const land = target();
+
+      // How far along the line has been drawn (fractional index).
+      const head = drawP * (n - 1);
+      const last = Math.floor(head);
+
+      const pointAt = (i: number) => {
+        const v = data.naive[i] + (data.real[i] - data.naive[i]) * morphP;
+        let x = xOf(i);
+        let y = yOf(v);
+        if (flatP > 0) {
+          const fx = land.x0 + (i / (n - 1)) * (land.x1 - land.x0);
+          x += (fx - x) * flatP;
+          y += (land.y - y) * flatP;
+        }
+        return [x, y];
+      };
+
+      // The naive curve stays behind as a ghost once costs are applied.
+      if (morphP > 0 && flatP < 1) {
+        ctx.strokeStyle = `rgba(237,235,230,${0.35 * morphP * (1 - flatP)})`;
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.25;
+        ctx.beginPath();
+        for (let i = 0; i <= last; i++) {
+          const x = xOf(i);
+          const y = yOf(data.naive[i]);
+          i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // The live line, with the area under it.
+      const pts: number[][] = [];
+      for (let i = 0; i <= last; i++) pts.push(pointAt(i));
+      if (last < n - 1) {
+        const a = pointAt(last);
+        const b = pointAt(last + 1);
+        const f = head - last;
+        pts.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]);
+      }
+      if (pts.length > 1) {
+        const color = morphP > 0.5 || flatP > 0 ? AMBER : '#4ade80';
+        const grad = ctx.createLinearGradient(0, top, 0, bottom);
+        grad.addColorStop(0, morphP > 0.5 ? 'rgba(255,176,0,0.18)' : 'rgba(74,222,128,0.16)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.globalAlpha = 1 - flatP;
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], bottom);
+        for (const [x, y] of pts) ctx.lineTo(x, y);
+        ctx.lineTo(pts[pts.length - 1][0], bottom);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // The glowing head while it draws.
+        if (drawP < 1 || flatP === 0) {
+          const [hx, hy] = pts[pts.length - 1];
+          const pulse = 6 + Math.sin(now / 90) * 2;
+          ctx.fillStyle = color;
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 24;
+          ctx.beginPath();
+          ctx.arc(hx, hy, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = color;
+          ctx.globalAlpha = 0.4;
+          ctx.beginPath();
+          ctx.arc(hx, hy, pulse + 4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          // Crosshair to the axes.
+          ctx.strokeStyle = 'rgba(237,235,230,0.12)';
+          ctx.beginPath();
+          ctx.moveTo(hx, 0); ctx.lineTo(hx, H);
+          ctx.moveTo(0, hy); ctx.lineTo(W, hy);
+          ctx.stroke();
+        }
+      }
+
+      // Readouts.
+      const idx = Math.min(n - 1, Math.round(head));
+      barEl.textContent = Math.round(drawP * data.bars).toLocaleString('en-GB');
+      dateEl.textContent = new Date(startMs + spanMs * drawP).toISOString().slice(0, 7);
+      retEl.textContent = pct(morphP > 0 ? data.naiveReturn + (data.realReturn - data.naiveReturn) * morphP : data.naive[idx] - 1);
+      if (morphP > 0) delta.textContent = `Real costs took −${((data.naiveReturn - data.realReturn) * 100 * morphP).toFixed(1)} pts`;
+
+      if (!stamped && t >= T.costs) {
+        stamped = true;
+        stamp.classList.add('on');
+        retEl.classList.add('real');
+        retLabel.textContent = 'Same strategy, after real costs';
+        delta.classList.add('on');
+      }
+      if (!named && t >= T.name) {
+        named = true;
+        name.classList.add('on');
+        scramble(name, { duration: 650 });
+      }
+
+      // Close the screen onto the line.
+      const closeP = easeIO(phase(t, T.close));
+      if (closeP > 0) {
+        const y = land.y;
+        root.style.clipPath = `inset(${(y * closeP).toFixed(1)}px 0 ${((H - y) * closeP).toFixed(1)}px 0)`;
+      }
+
+      if (t < end) requestAnimationFrame(frame);
+      else finish();
+    };
+
+    const finish = () => {
+      html.classList.remove('boot');
+      html.classList.add('booted');
+      window.removeEventListener('resize', resize);
+      root.remove();
+    };
+
+    // Any key, click or scroll jumps to the close.
+    const skip = () => {
+      if (skipped) return;
+      skipped = true;
+      const t = performance.now() - t0;
+      if (t < T.flat[0]) t0 = performance.now() - T.flat[0];
+    };
+    root.addEventListener('pointerdown', skip);
+    window.addEventListener('keydown', skip, { once: true });
+    window.addEventListener('wheel', skip, { once: true, passive: true });
+    window.addEventListener('touchmove', skip, { once: true, passive: true });
+
+    requestAnimationFrame(frame);
+  }
+</script>

@@ -2,15 +2,25 @@
 title: Invictus
 tagline: A backtesting engine that refuses to flatter a strategy.
 helps: Funds the rest, long term
+people: The engine
+problem: Most backtests flatter a strategy. Then real money touches it.
 order: 5
 year: '2026'
 status: Private
 stack: [Python 3.13, Numba, FastAPI, Parquet, React, Lightweight Charts, MCP]
-proof: 4,442 tests, and a 380-case regression baseline that proves nothing moved.
+proof: The same strategy shows +18% in a naive backtest and about +2% once real costs are in. Invictus shows you the +2%.
 stats:
-  - { value: '4,442', label: 'tests', source: 'pytest --collect-only, 3 Oct 2026' }
-  - { value: '380', label: 'pinned regression cases', source: 'tests/regression/' }
-  - { value: '641', label: 'commits in 8 months', source: 'git rev-list --count HEAD' }
+  - { value: '−16 pts', label: 'what real broker costs take from a strategy that looks like +18%', source: 'the demo above, exported from Invictus' }
+  - { value: '0', label: 'ways to write look-ahead. The strategy language cannot read a future bar', source: 'the case study' }
+  - { value: '1:1', label: 'live sessions replayed against the backtest, fill for fill', source: 'the case study' }
+# Edit these freely: they're the modules on the home page.
+features:
+  - { title: 'Fills you could actually get', detail: 'Every fill follows a written contract of which prices existed at that instant. A stop that gets gapped through fills at the worse price, every time.' }
+  - { title: 'Luck, discounted', detail: 'Deflated Sharpe and Hansen''s SPA test ask whether a winner beats chance, after counting every variation you tried to find it.' }
+  - { title: 'Out of sample by default', detail: 'Walk-forward analysis, rolling and anchored, shows how much a result decays on data it has never seen.' }
+  - { title: 'Shake it until it breaks', detail: 'Monte Carlo resampling and parameter sensitivity show whether an edge survives a little bad luck.' }
+  - { title: 'Live matches backtest', detail: 'Paper and live trading run on their own engine, and every session is replayed against the backtest, fill for fill.' }
+  - { title: 'Built for agents', detail: '75 tools over MCP, so an AI can write, test and run strategies through the same checks a person would.' }
 flagship: true
 ---
 
@@ -83,11 +93,10 @@ Paper and live trading run on a separate event-driven engine, held to the backte
 
 <Image src={research} alt="The Invictus research view: a daily SPY candlestick chart with a hand-drawn trend line and support level, the backtest panel below." widths={[800, 1400]} sizes="(max-width: 1100px) 100vw, 1100px" class="shot" />
 
-## The proof
+## Why you can trust the numbers
 
-- **4,442 tests**,<Note>Counted with <code>pytest --collect-only</code> on 3 October 2026.</Note> across 132 test files.
-- **380 regression cases** that pin exactly what the engine trades. Any change that moves a number fails the build until it is accepted on purpose, in its own commit, with a version bump.<Note>168 fill-core and 212 pipeline cases in <code>tests/regression/</code>.</Note>
-- **641 commits** in under eight months, about 108,000 lines of Python and 47,000 of interface code.<Note>From <code>git rev-list --count HEAD</code>; first commit 13 February 2026.</Note>
-- Lint, types and a coverage floor are gated in CI, and a deprecation warning fails the suite.
+- **Nothing moves by accident.** 380 regression cases pin exactly what the engine trades. Any change that moves a number fails the build until it is accepted on purpose, in its own commit, with a version bump.<Note>168 fill-core and 212 pipeline cases in <code>tests/regression/</code>.</Note>
+- **Every result is traceable.** Datasets and results are stored by the hash of their contents, so any number can be traced to the exact inputs behind it.
+- **The checks are strict.** Lint, types and a coverage floor are gated in CI, and a deprecation warning fails the suite.
 
 The repository is private. The demo above is its real output.
