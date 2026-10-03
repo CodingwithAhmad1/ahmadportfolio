@@ -73,7 +73,7 @@ On wide screens the note sits in the margin; on phones it drops under the line.
 - **Quote:** the `.pause` section in `src/pages/index.astro`. Verbatim only, with its source.
 - **Each project row:** `people` in the project's front matter (shown as "For …" above the title).
 - **Miran lead line:** `problem` in `miran.mdx`, shown in large type under the wordmark.
-- **Stats:** one to three per project in front matter, each with a `source`. Lead with what a visitor cares about (who it helps, what it does, what it caught), never test, commit or line counts.
+- **Stats:** one to three per project in front matter, each with a `source` (kept for checking the claim; not shown on the page). Lead with what a visitor cares about (who it helps, what it does, what it caught), never test, commit or line counts.
 - **Ticker tape:** the `tape` list in `src/pages/index.astro`. Every item must be a real result or a real feature.
 
 ## Regenerate the Miran demo
