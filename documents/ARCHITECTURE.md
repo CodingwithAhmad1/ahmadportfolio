@@ -69,7 +69,7 @@ documents/                  These notes
 
 ## The boot
 
-An inline script in the home page's `<head>` adds `html.boot` before first paint, unless the visitor has reduced motion, arrived from another page on this site, or followed a link with a hash. `?boot` forces it. `Boot.astro` runs the timeline, then swaps the class to `html.booted`, which plays the hero's entrance. A 6-second timer clears `boot` if the script never runs.
+An inline script in the home page's `<head>` adds `html.boot` before first paint, unless the visitor has reduced motion, arrived from another page on this site, or followed a link with a hash. `?boot` forces it. `Boot.astro` runs the timeline, then swaps the class to `html.booted`, which plays the hero's entrance. A 7-second timer clears `boot` if the script never runs.
 
 ## Conventions
 

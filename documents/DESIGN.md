@@ -54,7 +54,7 @@ A small cobalt number after a claim, and the source in the right margin, like a 
 
 ## Motion
 
-- **Boot** (home page only, about 3s): first arrival only, never when coming back from another page on the site, following a link to a project, or with reduced motion. Skippable by any key, click or scroll. `?boot` forces it. Armed by an inline script in `<head>`, with a 6s failsafe.
+- **Boot** (home page only, 4s): first arrival only, never when coming back from another page on the site, following a link to a project, or with reduced motion. Skippable by any key, click or scroll. `?boot` forces it. Armed by an inline script in `<head>`, with a 7s failsafe.
 - **Bridge** words light up with scroll.
 - **The engine is the only place things move on their own**: candles at three depths, order-book depth, fill tickets, ticker tape. The canvas only runs on screen and draws one still frame with reduced motion. All prices come from the demo's synthetic market. The calm of the mission and the hum of the engine is deliberate.
 - Letters thicken as the pointer approaches. After the boot, the statement rises into place.

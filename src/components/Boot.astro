@@ -198,7 +198,7 @@ const payload = JSON.stringify({
     window.addEventListener('resize', resize);
 
     // Timeline, in ms.
-    const T = { draw: [250, 1650], costs: 1700, morph: [1800, 2350], name: 1850, flat: [2500, 3000], close: [2750, 3150] };
+    const T = { draw: [300, 2100], costs: 2150, morph: [2250, 2950], name: 2300, flat: [3200, 3700], close: [3500, 4000] };
     const end = T.close[1];
 
     const log = (text: string, at: number) =>
@@ -211,9 +211,9 @@ const payload = JSON.stringify({
         while (logEl.children.length > 5) logEl.firstElementChild!.remove();
       }, at);
     log('boot ahmad.azim', 0);
-    log('mount mission <span class="ok">4 tools, all for people</span>', 140);
-    log('start engine <span class="ok">invictus</span>', 300);
-    log('replay macd_atr_trend on a market with no edge', 420);
+    log('mount mission <span class="ok">4 tools, all for people</span>', 180);
+    log('start engine <span class="ok">invictus</span>', 380);
+    log('replay macd_atr_trend on a market with no edge', 540);
     log('apply real costs <span class="ok">next-bar fills, 0.5bp fee, 0.75bp slip</span>', T.costs);
     log('<span class="ok">ready</span>', T.flat[0]);
 
@@ -379,7 +379,7 @@ const payload = JSON.stringify({
       if (!named && t >= T.name) {
         named = true;
         name.classList.add('on');
-        scramble(name, { duration: 650 });
+        scramble(name, { duration: 800 });
       }
 
       // Close the screen onto the line.
