@@ -1,5 +1,7 @@
 # V2 plan: beat neo.steinhoff.group
 
+> **Superseded in part by v3 (3 October 2026).** After v2, Ahmad asked for something far bolder that doesn't depend on reading. v3 puts everything on the home page: a black stage, a colour world per project, and a working demo inside each one. It also reframes the site people-first, with Invictus as the engine that should fund the work long term. The benchmark analysis and the "proof over claims" idea below still hold. For the current design see [DESIGN.md](DESIGN.md); for why it changed see [DECISIONS.md](DECISIONS.md).
+
 ## The benchmark, honestly
 
 **What it does well**

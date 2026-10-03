@@ -1,6 +1,6 @@
 # ahmadportfolio
 
-My portfolio and blog, built with [Astro](https://astro.build).
+My portfolio and blog, built with [Astro](https://astro.build). Software for people, every project playable on the home page, and Invictus as the engine behind it.
 
 ## Run it
 
@@ -17,8 +17,9 @@ Then open http://localhost:4321.
 - `src/content/projects/`: case studies, one MDX file each
 - `src/content/blog/`: blog posts, one Markdown file each
 - `src/styles/global.css`: colours and fonts
-- `src/components/BacktestDemo.astro`: the playable Invictus backtest
-- `scripts/export-invictus-demo.py`: regenerates the demo data from the real engine
+- `src/pages/index.astro`: the home page, which holds everything
+- `src/components/BacktestDemo.astro` and `src/components/toys/`: the live demo for each project
+- `scripts/export-invictus-demo.py` and `scripts/refresh-demo-data.py`: regenerate demo data from the real projects
 
 ## Docs
 

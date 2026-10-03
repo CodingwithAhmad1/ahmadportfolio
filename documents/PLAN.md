@@ -2,7 +2,7 @@
 
 ## Goals
 
-1. **Show my work.** Someone landing here should understand what I build within 10 seconds.
+1. **Show my work.** Someone landing here should understand what I build, and who it helps, within 10 seconds, without reading.
 2. **Publish writing.** Make it easy enough to post that I actually do it, at least once a month.
 3. **Be mine.** The site should look like no one else's, and stay fast and simple to maintain.
 
@@ -113,4 +113,4 @@ Things that might be fun later. Not commitments.
 
 ## Current focus
 
-V2 redesign, see [V2-PLAN.md](V2-PLAN.md). Update this line when the focus changes.
+v3 is live locally and pushed. Next: the "Before launch" list under Later, then deploy. Update this line when the focus changes.
